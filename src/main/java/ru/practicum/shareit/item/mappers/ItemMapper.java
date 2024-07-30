@@ -17,7 +17,7 @@ public interface ItemMapper {
     ItemDto mapToDto(Item item);
 
     @Mapping(target = "ownerId", source = "userId")
-    Item mapToModel(ItemDto itemDto, Long userId);
+    Item mapToModel(ItemDto itemDto, String userId);
 
     ReadItemDto mapToReadDto(Item item);
 

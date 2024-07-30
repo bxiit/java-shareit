@@ -15,9 +15,9 @@ public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
 
     @Override
-    public List<Item> findByUserId(long userId) {
+    public List<Item> findByUserId(String userId) {
         return items.values().stream()
-                .filter(item -> item.getOwnerId() == userId)
+                .filter(item -> item.getOwnerId().equals(userId))
                 .toList();
     }
 
@@ -29,12 +29,12 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public void deleteByUserIdAndItemId(long userId, long itemId) {
+    public void deleteByUserIdAndItemId(String userId, long itemId) {
         Iterator<Map.Entry<Long, Item>> entryIterator = items.entrySet().iterator();
         while (entryIterator.hasNext()) {
             Map.Entry<Long, Item> entry = entryIterator.next();
             Item item = entry.getValue();
-            if (item.getId() == itemId && item.getOwnerId() == userId) {
+            if (item.getId() == itemId && item.getOwnerId().equals(userId)) {
                 entryIterator.remove();
             }
         }
@@ -46,7 +46,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Optional<Item> findByUserIdAndItemId(Long userId, Long itemId) {
+    public Optional<Item> findByUserIdAndItemId(String userId, Long itemId) {
         return Optional.ofNullable(items.get(itemId));
     }
 

@@ -11,9 +11,9 @@ public interface UserService {
 
     UserDto saveUser(UserDto user);
 
-    UserDto updateUser(Long userId, UpdateUserRequest request);
+    UserDto updateUser(String userId, UpdateUserRequest request);
 
-    void deleteUserById(Long userId);
+    void deleteUserById(String userId);
 
-    UserDto getUserById(Long userId);
+    UserDto getUserById(String userId);
 }

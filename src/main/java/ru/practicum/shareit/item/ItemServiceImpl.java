@@ -21,7 +21,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
 
     @Override
-    public ItemDto addNewItem(Long userId, ItemDto itemDto) {
+    public ItemDto addNewItem(String userId, ItemDto itemDto) {
         // Если пользователя с таким id нет, то выбросится 404
         userService.getUserById(userId);
 
@@ -33,19 +33,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void deleteItem(long userId, long itemId) {
+    public void deleteItem(String userId, long itemId) {
         itemRepository.deleteByUserIdAndItemId(userId, itemId);
     }
 
     @Override
-    public List<ItemDto> getItems(long userId) {
+    public List<ItemDto> getItems(String userId) {
         return itemRepository.findByUserId(userId).stream()
                 .map(ItemMapper.MAPPER::mapToDto)
                 .toList();
     }
 
     @Override
-    public ItemDto editItem(Long userId, Long itemId, UpdateItemRequest request) {
+    public ItemDto editItem(String userId, Long itemId, UpdateItemRequest request) {
         // Нахождение вещи которую нужно обновить
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("errors.404.items"));
@@ -65,7 +65,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItems(String text) {
+    public List<ItemDto> getItemsByFilter(String text) {
         if (!text.isBlank()) {
             return itemRepository.findAllByNameLikeIgnoreCase(text).stream()
                     .filter(Item::getAvailable)

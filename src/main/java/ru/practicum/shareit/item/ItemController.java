@@ -28,14 +28,14 @@ public class ItemController {
 
     @PostMapping
     public ItemDto add(
-            @RequestHeader("X-Sharer-User-Id") @Positive(message = "Плохой идентификатор") Long userId,
+            @RequestHeader("X-Sharer-User-Id") @Positive(message = "Плохой идентификатор") String userId,
             @RequestBody @Valid ItemDto itemDto
     ) {
         return itemService.addNewItem(userId, itemDto);
     }
 
     @GetMapping
-    public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") String userId) {
         return itemService.getItems(userId);
     }
 
@@ -48,12 +48,12 @@ public class ItemController {
     public List<ItemDto> getItemsByQuery(
             @RequestParam(value = "text", required = false, defaultValue = "") String text
     ) {
-        return itemService.getItems(text);
+        return itemService.getItemsByFilter(text);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto editItem(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader("X-Sharer-User-Id") String userId,
             @PathVariable("itemId") Long itemId,
             @RequestBody UpdateItemRequest request
     ) {
@@ -62,7 +62,7 @@ public class ItemController {
 
     @DeleteMapping("/{itemId}")
     public void deleteItem(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader("X-Sharer-User-Id") String userId,
             @PathVariable(name = "itemId") Long itemId
     ) {
         itemService.deleteItem(userId, itemId);

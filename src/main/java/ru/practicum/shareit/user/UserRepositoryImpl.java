@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
-    private final Map<Long, User> users = new HashMap<>();
+    private final Map<String, User> users = new HashMap<>();
 
     @Override
     public List<User> findAll() {
@@ -20,14 +20,14 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        Long maxUsersId = IdGenerator.getMaxUsersId();
+        String maxUsersId = IdGenerator.getMaxUsersId();
         user.setId(maxUsersId);
         users.put(user.getId(), user);
         return users.get(user.getId());
     }
 
     @Override
-    public Optional<User> findById(Long userId) {
+    public Optional<User> findById(String userId) {
         return Optional.ofNullable(users.get(userId));
     }
 
@@ -37,7 +37,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void deleteById(Long userId) {
+    public void deleteById(String userId) {
         users.remove(userId);
     }
 

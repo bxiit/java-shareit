@@ -12,8 +12,8 @@ public class IdGenerator {
         return maxItemsId++;
     }
 
-    public static Long getMaxUsersId() {
-        return maxUsersId++;
+    public static String getMaxUsersId() {
+        return String.valueOf(maxUsersId++);
     }
 
     public static Long getMaxBookingsId() {

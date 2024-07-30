@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class UserDto {
-    private Long id;
+    private String id;
 
     @Email(message = "{errors.400.users.email}")
     @NotBlank(message = "{errors.400.users.email}")

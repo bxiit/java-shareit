@@ -8,15 +8,15 @@ import java.util.List;
 
 public interface ItemService {
 
-    ItemDto addNewItem(Long userId, ItemDto item);
+    ItemDto addNewItem(String userId, ItemDto item);
 
-    void deleteItem(long userId, long itemId);
+    void deleteItem(String userId, long itemId);
 
-    List<ItemDto> getItems(long userId);
+    List<ItemDto> getItems(String userId);
 
-    ItemDto editItem(Long userId, Long itemId, UpdateItemRequest request);
+    ItemDto editItem(String userId, Long itemId, UpdateItemRequest request);
 
     ItemDto getItem(Long itemId);
 
-    List<ItemDto> getItems(String text);
+    List<ItemDto> getItemsByFilter(String text);
 }

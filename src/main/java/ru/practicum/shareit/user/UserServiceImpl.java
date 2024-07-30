@@ -27,7 +27,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserById(Long userId) {
+    public UserDto getUserById(String userId) {
         return userRepository.findById(userId)
                 .map(UserMapper.MAPPER::mapToDto)
                 .orElseThrow(() -> new NotFoundException("errors.404.users"));
@@ -41,7 +41,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(Long userId, UpdateUserRequest request) {
+    public UserDto updateUser(String userId, UpdateUserRequest request) {
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
         if ((userOptional.isPresent()) && (!userOptional.get().getId().equals(userId))) {
             throw new AlreadyExistsException("errors.409.users.email");
@@ -56,7 +56,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUserById(Long userId) {
+    public void deleteUserById(String userId) {
         userRepository.deleteById(userId);
     }
 }

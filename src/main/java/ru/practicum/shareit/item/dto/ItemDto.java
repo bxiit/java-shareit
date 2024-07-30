@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.dto;
 
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -18,7 +17,6 @@ public class ItemDto {
     @NotNull(message = "{errors.400.items.description.null}")
     private String description;
 
-    @AssertTrue(message = "{errors.400.items.available}")
     @NotNull(message = "{errors.400.items.available.null}")
     private Boolean available;
 
