@@ -55,7 +55,7 @@ public class ItemController {
     public ItemDto editItem(
             @RequestHeader("X-Sharer-User-Id") String userId,
             @PathVariable("itemId") Long itemId,
-            @RequestBody UpdateItemRequest request
+            @RequestBody @Valid UpdateItemRequest request
     ) {
         return itemService.editItem(userId, itemId, request);
     }

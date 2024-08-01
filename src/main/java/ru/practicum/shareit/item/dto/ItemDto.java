@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 @Data
 public class ItemDto {
@@ -20,5 +20,5 @@ public class ItemDto {
     @NotNull(message = "{errors.400.items.available.null}")
     private Boolean available;
 
-    private ItemRequest request;
+    private ItemRequestDto request;
 }

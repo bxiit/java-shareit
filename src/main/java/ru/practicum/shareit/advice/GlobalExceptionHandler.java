@@ -16,6 +16,7 @@ import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -39,6 +40,7 @@ public class GlobalExceptionHandler {
         List<ObjectError> errors = e.getBindingResult().getAllErrors();
         String errorMessage = errors.stream()
                 .map(ObjectError::getDefaultMessage)
+                .filter(Objects::nonNull)
                 .map(message -> messageSource.getMessage(
                         message, EMPTY_ARGS, message, LocaleContextHolder.getLocale()
                 ))

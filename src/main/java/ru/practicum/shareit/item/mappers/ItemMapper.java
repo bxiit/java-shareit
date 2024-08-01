@@ -5,10 +5,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ReadItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
-import ru.practicum.shareit.item.model.Item;
 
 @Mapper
 public interface ItemMapper {
@@ -18,8 +17,6 @@ public interface ItemMapper {
 
     @Mapping(target = "ownerId", source = "userId")
     Item mapToModel(ItemDto itemDto, String userId);
-
-    ReadItemDto mapToReadDto(Item item);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "name", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
