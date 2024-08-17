@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.comment.dto.NewCommentRequest;
+import ru.practicum.shareit.item.dto.ItemAndBookingDatesAndComments;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
 
@@ -31,17 +34,20 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") @Positive(message = "Плохой идентификатор") String userId,
             @RequestBody @Valid ItemDto itemDto
     ) {
-        return itemService.addNewItem(userId, itemDto);
+        return itemService.addNewItem(Long.valueOf(userId), itemDto);
     }
 
     @GetMapping
-    public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") String userId) {
-        return itemService.getItems(userId);
+    public List<ItemAndBookingDatesAndComments> getUserItems(@RequestHeader("X-Sharer-User-Id") String userId) {
+        return itemService.getItemsWithBookingComments(Long.valueOf(userId));
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable("itemId") Long itemId) {
-        return itemService.getItem(itemId);
+    public ItemAndBookingDatesAndComments getItemById(
+            @RequestHeader("X-Sharer-User-Id") String userId,
+            @PathVariable("itemId") Long itemId
+    ) {
+        return itemService.getItemWithBookingComments(Long.valueOf(userId), itemId);
     }
 
     @GetMapping("/search")
@@ -57,7 +63,7 @@ public class ItemController {
             @PathVariable("itemId") Long itemId,
             @RequestBody @Valid UpdateItemRequest request
     ) {
-        return itemService.editItem(userId, itemId, request);
+        return itemService.editItem(Long.valueOf(userId), itemId, request);
     }
 
     @DeleteMapping("/{itemId}")
@@ -65,6 +71,15 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") String userId,
             @PathVariable(name = "itemId") Long itemId
     ) {
-        itemService.deleteItem(userId, itemId);
+        itemService.deleteItem(Long.valueOf(userId), itemId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto saveComment(
+            @RequestHeader("X-Sharer-User-Id") String userId,
+            @PathVariable(name = "itemId") Long itemId,
+            @RequestBody NewCommentRequest request
+    ) {
+        return itemService.addNewComment(Long.valueOf(userId), itemId, request);
     }
 }

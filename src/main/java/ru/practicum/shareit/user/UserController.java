@@ -30,7 +30,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable("id") String id) {
-        return userService.getUserById(id);
+        return userService.getUserById(Long.valueOf(id));
     }
 
     @GetMapping
@@ -43,12 +43,12 @@ public class UserController {
             @RequestBody @Valid UpdateUserRequest request,
             @PathVariable String id
     ) {
-        return userService.updateUser(id, request);
+        return userService.updateUser(Long.valueOf(id), request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable("id") String id) {
-        userService.deleteUserById(id);
+        userService.deleteUserById(Long.valueOf(id));
     }
 }

@@ -20,5 +20,5 @@ public interface UserMapper {
     @Mapping(target = "email", source = "email", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     User updateUserFields(@MappingTarget User user, UpdateUserRequest request);
 
-    User mapToModel(UserDto userDto);
+    User mapToEntity(UserDto userDto);
 }
