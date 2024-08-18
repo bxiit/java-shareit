@@ -154,7 +154,7 @@ public class ItemServiceImpl implements ItemService {
                 });
         LocalDateTime end = InstantConverter.toLocalDateTime(booking.getEnd());
         if (end.isAfter(LocalDateTime.now())) {
-            log.error("user (ID:{}) trying to comment uncompleted booking's item", userId);
+            log.error("user (ID:{}) tried to comment uncompleted booking's item", userId);
             throw new BadRequestException("errors.400.comments.not_allowed");
         }
     }
