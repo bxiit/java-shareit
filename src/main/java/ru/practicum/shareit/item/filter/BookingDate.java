@@ -19,6 +19,7 @@ public enum BookingDate implements BookingDateFilter {
                     .filter(endDate -> endDate.isBefore(Instant.now()))
                     .min(Instant::compareTo)
                     .map(InstantConverter::toLocalDate)
+                    .filter(endDate -> !endDate.isEqual(LocalDate.now()))
                     .orElse(null);
         }
     },
