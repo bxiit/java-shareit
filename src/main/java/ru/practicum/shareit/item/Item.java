@@ -26,7 +26,7 @@ import ru.practicum.shareit.user.User;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @AllArgsConstructor(staticName = "of")
-@Table(name = "items", schema = "public")
+@Table(name = "item", schema = "public")
 public class Item {
 
     @Id

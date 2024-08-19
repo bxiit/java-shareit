@@ -11,10 +11,10 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UnavailableItemException;
-import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -25,8 +25,8 @@ import static java.lang.Boolean.FALSE;
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
-    private final UserService userService;
-    private final ItemService itemService;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
     private final BookingMapper bookingMapper;
 
     @Override
@@ -87,14 +87,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private Booking buildBooking(Long userId, NewBookingRequest request) {
-        UserDto userDto = userService.getUserById(userId);
-        ItemDto itemDto = itemService.getItem(request.itemId());
-        checkItemAvailability(itemDto);
-        return bookingMapper.mapNewRequestToEntity(request, itemDto, userDto);
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("errors.404.users"));
+        Item item = itemRepository.findById(request.itemId()).orElseThrow(() -> new NotFoundException("errors.404.items"));
+        checkItemAvailability(item);
+        return bookingMapper.mapNewRequestToEntity(request, item, user);
     }
 
-    private void checkItemAvailability(ItemDto itemDto) {
-        if (FALSE.equals(itemDto.getAvailable())) {
+    private void checkItemAvailability(Item item) {
+        if (FALSE.equals(item.getAvailable())) {
             throw new UnavailableItemException("errors.400.bookings.unavailable");
         }
     }

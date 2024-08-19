@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ import ru.practicum.shareit.item.dto.UpdateItemRequest;
 import ru.practicum.shareit.item.filter.BookingDate;
 import ru.practicum.shareit.item.mappers.ItemMapper;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.util.converter.InstantConverter;
 
 import java.time.LocalDate;
@@ -39,20 +38,14 @@ import static java.util.stream.Collectors.groupingBy;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-    private final EntityManager em;
     private final ItemMapper itemMapper;
 
     @Override
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
-        // Если пользователя с таким id нет, то выбросится 404
-        if (!userService.existById(userId)) {
-            throw new NotFoundException("errors.404.users");
-        }
-
-        User user = em.getReference(User.class, userId);
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("errors.404.users"));
         Item item = itemMapper.mapToEntity(itemDto, user);
         itemRepository.save(item);
 
@@ -98,9 +91,13 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDto addNewComment(Long userId, Long itemId, NewCommentRequest request) {
         checkForBooking(userId, itemId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("errors.404.users"));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("errors.404.items"));
         Comment comment = itemMapper.mapNewRequestToEntity(
-                em.getReference(User.class, userId),
-                em.getReference(Item.class, itemId),
+                user,
+                item,
                 request.text()
         );
         commentRepository.save(comment);

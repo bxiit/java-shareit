@@ -3,17 +3,22 @@ package ru.practicum.shareit.advice;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ProblemDetail;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.exception.ShareItException;
 
+import java.beans.PropertyEditorSupport;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -70,5 +75,24 @@ public class GlobalExceptionHandler {
         String errorMessage = e.getMessage();
         errorMessage = errorMessage.replaceAll("ru\\.practicum\\.shareit\\.[^.]+\\.", "");
         return ProblemDetail.forStatusAndDetail(NOT_FOUND, errorMessage);
+    }
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(State.class, EnumPropertyEditor.forEnum(State.class));
+    }
+
+    @AllArgsConstructor
+    private static class EnumPropertyEditor<T extends Enum<T>> extends PropertyEditorSupport {
+        private final Class<T> enumClass;
+
+        public static <T extends Enum<T>> EnumPropertyEditor<T> forEnum(final Class<T> enumClass) {
+            return new EnumPropertyEditor<>(enumClass);
+        }
+
+        @Override
+        public void setAsText(String text) throws IllegalArgumentException {
+            setValue(Enum.valueOf(enumClass, text.toUpperCase()));
+        }
     }
 }

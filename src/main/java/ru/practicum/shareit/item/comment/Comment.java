@@ -20,7 +20,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "comments", schema = "public")
+@Table(name = "comment", schema = "public")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

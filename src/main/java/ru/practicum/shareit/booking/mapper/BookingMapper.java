@@ -6,9 +6,9 @@ import org.mapstruct.Named;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.mappers.ItemMapper;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.mappers.UserMapper;
 import ru.practicum.shareit.util.converter.InstantConverter;
 
@@ -18,12 +18,12 @@ import java.time.LocalDateTime;
 @Mapper(uses = {UserMapper.class, ItemMapper.class})
 public interface BookingMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "booker", source = "userDto")
-    @Mapping(target = "item", expression = "java(itemMapper.mapToEntity(itemDto, userMapper.mapToEntity(userDto)))")
+    @Mapping(target = "booker", source = "user")
+    @Mapping(target = "item", source = "item")
     @Mapping(target = "status", expression = "java(ru.practicum.shareit.booking.Status.WAITING)")
     @Mapping(target = "start", source = "request.start", qualifiedByName = "mapLocalDateTimeToInstant")
     @Mapping(target = "end", source = "request.end", qualifiedByName = "mapLocalDateTimeToInstant")
-    Booking mapNewRequestToEntity(NewBookingRequest request, ItemDto itemDto, UserDto userDto);
+    Booking mapNewRequestToEntity(NewBookingRequest request, Item item, User user);
 
     @Mapping(target = "start", source = "booking.start", qualifiedByName = "mapInstantToLocalDateTime")
     @Mapping(target = "end", source = "booking.end", qualifiedByName = "mapInstantToLocalDateTime")
