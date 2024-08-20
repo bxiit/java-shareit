@@ -25,6 +25,9 @@ public interface BookingMapper {
     @Mapping(target = "end", source = "request.end", qualifiedByName = "mapLocalDateTimeToInstant")
     Booking mapNewRequestToEntity(NewBookingRequest request, Item item, User user);
 
+    @Mapping(target = "nextBooking", ignore = true)
+    @Mapping(target = "lastBooking", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     @Mapping(target = "start", source = "booking.start", qualifiedByName = "mapInstantToLocalDateTime")
     @Mapping(target = "end", source = "booking.end", qualifiedByName = "mapInstantToLocalDateTime")
     BookingDto mapToDto(Booking booking);
