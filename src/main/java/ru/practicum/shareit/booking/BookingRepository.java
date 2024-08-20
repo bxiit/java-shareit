@@ -28,27 +28,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, Queryds
     Optional<Booking> findByBookerIdAndItemId(Long bookerId, Long itemId);
 
     @Query(value = """
-
-                with last_booking as (select b.ITEM_ID,
-                                         max(b.START_DATE) as last_booking_date
-                                  from BOOKING b
-                                  where b.START_DATE < current_timestamp()
-                                    and cast(b.START_DATE as date) <> current_date
-                                  group by b.ITEM_ID),
-                 next_booking as (select b.ITEM_ID,
-                                         min(b.END_DATE) as next_booking_date
-                                  from BOOKING b
-                                  where b.END_DATE > current_timestamp()
-                                    and cast(b.END_DATE as date) <> current_date
-                                  group by b.ITEM_ID)
-            select i.*,
-                   lb.last_booking_date,
-                   nb.next_booking_date
-            from ITEM i
-                     left join last_booking lb on i.ID = lb.ITEM_ID
-                     left join next_booking nb on i.ID = nb.ITEM_ID
-                     left join PUBLIC.USERS u on i.OWNER_ID = u.ID
-            where i.OWNER_ID = ?1
-            """, nativeQuery = true)
+                with last_booking as (select blb.item.id as lb_item_id,
+                                         max(cast(blb.start as date)) as last_booking_date
+                                  from Booking blb
+                                  where cast(blb.start as date) < current_date
+                                  group by blb.item.id),
+                 next_booking as (select bnb.item.id as nb_item_id,
+                                         min(cast(bnb.start as date)) as next_booking_date
+                                  from Booking bnb
+                                  where cast(bnb.start as date) > current_date
+                                  group by bnb.item.id)
+            select it,
+                   lb.last_booking_date as last,
+                   nb.next_booking_date as next
+            from Item it
+                     join last_booking lb on it.id = lb.lb_item_id
+                     join next_booking nb on it.id = nb.nb_item_id
+            where it.owner.id = ?1
+            """)
     List<ItemBookingDateCommentsView> findByOwnerIdWithLastAndNextBooking(Long ownerId);
 }

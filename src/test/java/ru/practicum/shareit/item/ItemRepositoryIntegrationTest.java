@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.dto.ItemBookingDateCommentsView;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,5 +30,9 @@ class ItemRepositoryIntegrationTest {
     })
     void findByOwnerIdWithLastAndNextBooking() {
         ItemBookingDateCommentsView view = bookingRepository.findByOwnerIdWithLastAndNextBooking(1L).getFirst();
+        assertThat(view.getLastBookingDate())
+                .isBefore(LocalDate.now());
+        assertThat(view.getNextBookingDate())
+                .isAfter(LocalDate.now());
     }
 }
