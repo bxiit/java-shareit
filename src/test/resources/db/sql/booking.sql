@@ -1,8 +1,17 @@
-insert into users (id, email, name)
-values (1111, 'bexeiitatabek@yandex.kz', 'bxiit');
+INSERT INTO BOOKING (ID, START_DATE, END_DATE, ITEM_ID, USER_ID, STATUS)
+VALUES (1, DATEADD('YEAR', -2, NOW()), DATEADD('YEAR', -1, NOW()), 1, 2, 'APPROVED');
 
-insert into item (id, name, description, is_available, owner_id, request_id)
-values (1111, 'Acer', 'Лучше мак', true, 1111, null);
+INSERT INTO BOOKING (ID, START_DATE, END_DATE, ITEM_ID, USER_ID, STATUS)
+VALUES (2, DATEADD('DAY', -7, NOW()), DATEADD('DAY', -5, NOW()), 1, 3, 'APPROVED');
 
-insert into booking (id, start_date, end_date, item_id, user_id, status)
-values (1111, now(), dateadd('HOUR', 3, now()), 1111, 1111, 'WAITING');
+INSERT INTO BOOKING (ID, START_DATE, END_DATE, ITEM_ID, USER_ID, STATUS)
+VALUES (3, DATEADD('DAY', 5, NOW()), DATEADD('DAY', 7, NOW()), 1, 4, 'WAITING');
+
+INSERT INTO BOOKING (ID, START_DATE, END_DATE, ITEM_ID, USER_ID, STATUS)
+VALUES (4, DATEADD('YEAR', 1, NOW()), DATEADD('YEAR', 2, NOW()), 1, 5, 'WAITING');
+
+INSERT INTO BOOKING (ID, START_DATE, END_DATE, ITEM_ID, USER_ID, STATUS)
+VALUES (5, DATEADD('MINUTE', 30, NOW()), DATEADD('MINUTE', 60, NOW()), 2, 5, 'WAITING');
+
+INSERT INTO BOOKING (ID, START_DATE, END_DATE, ITEM_ID, USER_ID, STATUS)
+VALUES (6, DATEADD('MINUTE', -30, NOW()), DATEADD('MINUTE', -60, NOW()), 2, 5, 'WAITING');

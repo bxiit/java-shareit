@@ -11,7 +11,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
@@ -36,7 +35,6 @@ public class Comment {
 
     private String text;
 
-    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private Instant created;
+    private Instant created = Instant.now();
 }

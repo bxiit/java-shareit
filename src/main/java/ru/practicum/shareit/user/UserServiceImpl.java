@@ -16,6 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -23,15 +24,15 @@ class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new AlreadyExistsException("errors.409.users.email");
         }
-        User user = UserMapper.MAPPER.mapToEntity(userDto);
+        User user = userMapper.mapToEntity(userDto);
         user = userRepository.save(user);
-        return UserMapper.MAPPER.mapToDto(user);
+        return userMapper.mapToDto(user);
     }
 
     @Override
     public UserDto getUserById(Long userId) {
         return userRepository.findById(userId)
-                .map(UserMapper.MAPPER::mapToDto)
+                .map(userMapper::mapToDto)
                 .orElseThrow(() -> new NotFoundException("errors.404.users"));
     }
 
@@ -43,7 +44,7 @@ class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(UserMapper.MAPPER::mapToDto)
+                .map(userMapper::mapToDto)
                 .toList();
     }
 
@@ -55,11 +56,11 @@ class UserServiceImpl implements UserService {
         }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("errors.404.users"));
-        user = UserMapper.MAPPER.updateUserFields(user, request);
+        user = userMapper.updateUserFields(user, request);
 
         userRepository.save(user);
 
-        return UserMapper.MAPPER.mapToDto(user);
+        return userMapper.mapToDto(user);
     }
 
     @Override

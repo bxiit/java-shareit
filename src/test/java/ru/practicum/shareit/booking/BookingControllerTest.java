@@ -21,16 +21,20 @@ class BookingControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @Sql("/db/sql/booking.sql")
+    @Sql(scripts = {
+            "/db/sql/users.sql",
+            "/db/sql/item.sql",
+            "/db/sql/booking.sql"
+    })
     void edit_shouldReturnUpdatedBooking_whenApprovedIsTrue() throws Exception {
         mockMvc.perform(
-                        patch("/bookings/1111")
-                                .header("X-Sharer-User-Id", 1111)
+                        patch("/bookings/3")
+                                .header("X-Sharer-User-Id", 1)
                                 .param("approved", "true")
                 )
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.id").value(1111),
+                        jsonPath("$.id").value(3),
                         jsonPath("$.status").value("APPROVED")
                 );
     }

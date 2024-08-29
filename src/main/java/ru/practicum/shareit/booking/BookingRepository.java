@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import ru.practicum.shareit.item.dto.ItemBookingDateCommentsView;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,24 +26,39 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, Queryds
             """)
     Optional<Booking> findByBookerIdAndItemId(Long bookerId, Long itemId);
 
-    @Query(value = """
-                with last_booking as (select blb.item.id as lb_item_id,
-                                         max(cast(blb.start as date)) as last_booking_date
-                                  from Booking blb
-                                  where cast(blb.start as date) < current_date
-                                  group by blb.item.id),
-                 next_booking as (select bnb.item.id as nb_item_id,
-                                         min(cast(bnb.start as date)) as next_booking_date
-                                  from Booking bnb
-                                  where cast(bnb.start as date) > current_date
-                                  group by bnb.item.id)
-            select it,
-                   lb.last_booking_date as last,
-                   nb.next_booking_date as next
-            from Item it
-                     join last_booking lb on it.id = lb.lb_item_id
-                     join next_booking nb on it.id = nb.nb_item_id
-            where it.owner.id = ?1
+    @Query("""
+            select bk
+            from Booking as bk
+            where bk.item.id in ?1
+            and (cast(bk.start as date) > current_date or cast(bk.start as date) < current_date)
+            group by bk.id, bk.item
+            having min(bk.start) > current_date or min(bk.start) < current_date
             """)
-    List<ItemBookingDateCommentsView> findByOwnerIdWithLastAndNextBooking(Long ownerId);
+    List<Booking> findItemsLastNextBookings(Set<Long> itemsIds);
+
+    @Query("""
+            select bk
+            from (
+            select max(l_bk.start) as last_bk_date
+            from Booking l_bk
+            where l_bk.item.id in ?1
+            and cast(l_bk.start as date) < current_date
+            group by l_bk.item
+            ) as last_booking_date
+            inner join Booking bk on bk.start = last_booking_date.last_bk_date
+            """)
+    List<Booking> lasts(Set<Long> itemsIds);
+
+    @Query("""
+            select bk
+            from (
+            select min(l_bk.start) as last_bk_date
+            from Booking l_bk
+            where l_bk.item.id in ?1
+            and cast(l_bk.start as date) > current_date
+            group by l_bk.item
+            ) as last_booking_date
+            inner join Booking bk on bk.start = last_booking_date.last_bk_date
+            """)
+    List<Booking> nexts(Set<Long> itemsIds);
 }

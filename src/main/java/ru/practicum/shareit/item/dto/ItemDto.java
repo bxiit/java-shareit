@@ -6,7 +6,11 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,4 +29,10 @@ public class ItemDto {
     private Boolean available;
 
     private ItemRequestDto request;
+
+    private BookingDto lastBooking;
+
+    private BookingDto nextBooking;
+
+    private List<CommentDto> comments;
 }

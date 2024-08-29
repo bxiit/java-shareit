@@ -14,7 +14,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             join fetch ct.item it
             where it.id in ?1
             """)
-    List<Comment> findAllByItemsIds(Set<Long> itemsIds);
+    List<Comment> findByItemsIds(Set<Long> itemsIds);
 
-    List<Comment> findAllByItem_Owner_Id(Long ownerId);
+    List<Comment> findByItemId(Long itemId);
 }

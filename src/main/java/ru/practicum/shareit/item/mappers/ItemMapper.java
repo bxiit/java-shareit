@@ -1,12 +1,15 @@
 package ru.practicum.shareit.item.mappers;
 
+import jakarta.annotation.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.comment.Comment;
-import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.comment.mapper.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemAndBookingDatesAndComments;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
@@ -21,10 +24,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper(
-        uses = {UserMapper.class, ItemRequestMapper.class}
+        uses = {UserMapper.class, ItemRequestMapper.class, BookingMapper.class, CommentMapper.class}
 )
 public interface ItemMapper {
-    ItemDto mapToDto(Item item);
+
+    @Mapping(target = "id", source = "item.id")
+    ItemDto mapToDto(Item item, @Nullable Booking lastBooking, @Nullable Booking nextBooking, List<Comment> comments);
+
+    default ItemDto mapToDto(Item item) {
+        return mapToDto(item, null, null, null);
+    }
 
     @Mapping(target = "id", source = "itemDto.id")
     @Mapping(target = "name", source = "itemDto.name")
@@ -44,14 +53,6 @@ public interface ItemMapper {
     @Mapping(target = "name", source = "item.name")
     @Mapping(target = "request", source = "item.request")
     ItemAndBookingDatesAndComments mapToItemBookingDates(Item item, LocalDate lastBooking, LocalDate nextBooking, List<Comment> comments);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "created", ignore = true)
-    Comment mapNewRequestToEntity(User author, Item item, String text);
-
-    @Mapping(target = "authorName", source = "comment.author.name")
-    @Mapping(target = "item", source = "comment.item")
-    CommentDto mapToDto(Comment comment);
 
     default LocalDateTime mapToLocalDateTime(Instant instant) {
         return InstantConverter.toLocalDateTime(instant);

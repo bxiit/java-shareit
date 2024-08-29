@@ -1,10 +1,10 @@
 insert into USERS (ID, EMAIL, NAME)
 values (1, 'bexeiitatabek@yandex.kz', 'Bexeiit');
 insert into USERS (ID, EMAIL, NAME)
-values (11, 'booker1@gmail.com', 'booker1');
+values (2, 'booker1@gmail.com', 'booker1');
 insert into USERS (ID, EMAIL, NAME)
-values (22, 'booker2@gmail.com', 'booker2');
+values (3, 'booker2@gmail.com', 'booker2');
 insert into USERS (ID, EMAIL, NAME)
-values (33, 'booker3@gmail.com', 'booker3');
+values (4, 'booker3@gmail.com', 'booker3');
 insert into USERS (ID, EMAIL, NAME)
-values (44, 'booker4@gmail.com', 'booker4');
+values (5, 'booker4@gmail.com', 'booker4');
