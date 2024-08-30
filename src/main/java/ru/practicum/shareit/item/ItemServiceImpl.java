@@ -18,6 +18,7 @@ import ru.practicum.shareit.item.comment.dto.NewCommentRequest;
 import ru.practicum.shareit.item.comment.mapper.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
+import ru.practicum.shareit.item.extractor.ItemWithBookingsExtractor;
 import ru.practicum.shareit.item.mappers.ItemMapper;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
@@ -25,15 +26,17 @@ import ru.practicum.shareit.util.converter.InstantConverter;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -48,6 +51,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
     private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final ItemWithBookingsExtractor itemWithBookingsExtractor;
 
     @Override
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
@@ -73,29 +77,27 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getItems(Long userId) {
-        List<Item> items = itemRepository.findByOwnerId(userId);
-        Set<Long> itemsIds = mapToItemsIds(items);
-
-        List<Booking> bookings = bookingRepository.lasts(itemsIds);
-        bookings.addAll(bookingRepository.nexts(itemsIds));
-        Map<Item, Pair<Optional<Booking>, Optional<Booking>>> itemWithBookings = mapToItemPairMap(bookings);
-        Map<Item, List<Comment>> itemCommentsMap = getItemCommentsMap(commentRepository.findByItemsIds(itemsIds));
-
-        return items.stream().map(item ->
-                        itemMapper.mapToDto(
-                                item,
-                                itemWithBookings.getOrDefault(item, EMPTY_PAIR).getFirst().orElse(null),
-                                itemWithBookings.getOrDefault(item, EMPTY_PAIR).getSecond().orElse(null),
-                                itemCommentsMap.getOrDefault(item, Collections.emptyList())
+        List<ItemDto> itemDtos = jdbcTemplate.query(itemRepository.FIND_ITEM_WITH_LAST_AND_NEXT_BOOKINGS_SQL,
+                Map.of("ownerId", userId),
+                itemWithBookingsExtractor
+        );
+        Set<Long> itemsIds = itemDtos.stream().map(ItemDto::getId).collect(toSet());
+        Map<ItemDto, List<CommentDto>> itemCommentsMap = commentRepository.findByItemsIds(itemsIds).stream()
+                .collect(groupingBy(comment ->
+                                        itemMapper.mapToDto(comment.getItem()),
+                                mapping(commentMapper::mapToDto, toList())
                         )
-                )
+                );
+
+        return itemDtos.stream()
+                .peek(itemDto -> itemDto.setComments(itemCommentsMap.getOrDefault(itemDto, emptyList())))
                 .toList();
     }
 
     @Override
     public List<ItemDto> getItemsByFilter(String text) {
         if (text.isBlank()) {
-            return Collections.emptyList();
+            return emptyList();
         }
         return itemRepository.searchItemsByTextFilter(text).stream()
                 .map(itemMapper::mapToDto)
@@ -170,7 +172,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     private Set<Long> mapToItemsIds(List<Item> usersItems) {
-        return usersItems.stream().map(Item::getId).collect(Collectors.toSet());
+        return usersItems.stream().map(Item::getId).collect(toSet());
     }
 
     private Map<Item, List<Comment>> getItemCommentsMap(List<Comment> comments) {

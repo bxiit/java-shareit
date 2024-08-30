@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @SpringBootTest
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
-class ItemControllerIntegrationTest {
+class ItemControllerIT {
 
     @Autowired
     MockMvc mockMvc;
@@ -67,5 +67,28 @@ class ItemControllerIntegrationTest {
                         jsonPath("$.id").value(2),
                         jsonPath("$.nextBooking").doesNotExist()
                 );
+    }
+
+    @Test
+    @Sql({
+            "/db/sql/users.sql",
+            "/db/sql/item.sql",
+            "/db/sql/booking.sql",
+            "/db/sql/comment.sql"
+    })
+    void getItemById_shouldReturnThreeComments_whenCommentsAreExist() throws Exception {
+        // given
+        var itemId = 2;
+        var userId = 22;
+
+        // when
+        mockMvc.perform(
+                        get("/items")
+                                .header("X-Sharer-User-Id", userId)
+                )
+                // then
+                .andExpect(
+                        status().isOk()
+                ).andExpect(jsonPath("$.comments.length()").value(3));
     }
 }
