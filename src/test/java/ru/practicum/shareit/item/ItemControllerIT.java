@@ -76,10 +76,9 @@ class ItemControllerIT {
             "/db/sql/booking.sql",
             "/db/sql/comment.sql"
     })
-    void getItemById_shouldReturnThreeComments_whenCommentsAreExist() throws Exception {
+    void getUserItems_shouldReturnThreeComments_whenCommentsAreExist() throws Exception {
         // given
-        var itemId = 2;
-        var userId = 22;
+        var userId = 1;
 
         // when
         mockMvc.perform(
@@ -87,8 +86,10 @@ class ItemControllerIT {
                                 .header("X-Sharer-User-Id", userId)
                 )
                 // then
-                .andExpect(
-                        status().isOk()
-                ).andExpect(jsonPath("$.comments.length()").value(3));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$..[0].comments.length()").value(3)
+                );
+        // $..[0].comments -> поле comments первого элемента из списка
     }
 }

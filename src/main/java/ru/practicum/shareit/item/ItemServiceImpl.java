@@ -81,6 +81,9 @@ public class ItemServiceImpl implements ItemService {
                 Map.of("ownerId", userId),
                 itemWithBookingsExtractor
         );
+        if (itemDtos == null) {
+            return null;
+        }
         Set<Long> itemsIds = itemDtos.stream().map(ItemDto::getId).collect(toSet());
         Map<ItemDto, List<CommentDto>> itemCommentsMap = commentRepository.findByItemsIds(itemsIds).stream()
                 .collect(groupingBy(comment ->

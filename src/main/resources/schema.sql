@@ -1,4 +1,4 @@
-CREATE TYPE IF NOT EXISTS public.booking_status AS ENUM (
+CREATE TYPE public.booking_status AS ENUM (
     'WAITING',
     'APPROVED',
     'REJECTED',
