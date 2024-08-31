@@ -30,7 +30,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @AllArgsConstructor(staticName = "of")
-@Table(name = "booking", schema = "public")
+@Table(name = "booking")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -16,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "request", schema = "public")
+@Table(name = "request")
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 public class ItemRequest {

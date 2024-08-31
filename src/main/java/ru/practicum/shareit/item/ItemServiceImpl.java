@@ -177,12 +177,4 @@ public class ItemServiceImpl implements ItemService {
     private Set<Long> mapToItemsIds(List<Item> usersItems) {
         return usersItems.stream().map(Item::getId).collect(toSet());
     }
-
-    private Map<Item, List<Comment>> getItemCommentsMap(List<Comment> comments) {
-        return comments.stream().collect(groupingBy(Comment::getItem));
-    }
-
-    private Map<Item, List<Booking>> getItemBookingsMap(List<Booking> bookings) {
-        return bookings.stream().collect(groupingBy(Booking::getItem));
-    }
 }
