@@ -13,28 +13,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, Queryds
     @Query("""
             select bk
             from Booking bk
-            join fetch bk.item as it
-            where it.id in ?1
-            """)
-    List<Booking> findByItemsIds(Set<Long> itemsIds);
-
-    @Query("""
-            select bk
-            from Booking bk
             where bk.booker.id = ?1
             and bk.item.id = ?2
             """)
     Optional<Booking> findByBookerIdAndItemId(Long bookerId, Long itemId);
-
-    @Query("""
-            select bk
-            from Booking as bk
-            where bk.item.id in ?1
-            and (cast(bk.start as date) > current_date or cast(bk.start as date) < current_date)
-            group by bk.id, bk.item
-            having min(bk.start) > current_date or min(bk.start) < current_date
-            """)
-    List<Booking> findItemsLastNextBookings(Set<Long> itemsIds);
 
     @Query("""
             select bk
@@ -47,7 +29,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, Queryds
             ) as last_booking_date
             inner join Booking bk on bk.start = last_booking_date.last_bk_date
             """)
-    List<Booking> lasts(Set<Long> itemsIds);
+    List<Booking> findByItemsIdsLastBookings(Set<Long> itemsIds);
 
     @Query("""
             select bk
@@ -60,5 +42,5 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, Queryds
             ) as last_booking_date
             inner join Booking bk on bk.start = last_booking_date.last_bk_date
             """)
-    List<Booking> nexts(Set<Long> itemsIds);
+    List<Booking> findByItemsIdsNextBookings(Set<Long> itemsIds);
 }

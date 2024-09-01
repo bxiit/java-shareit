@@ -10,8 +10,8 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.mapper.CommentMapper;
-import ru.practicum.shareit.item.dto.ItemAndBookingDatesAndComments;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemInfoDto;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.user.User;
@@ -19,7 +19,6 @@ import ru.practicum.shareit.user.mappers.UserMapper;
 import ru.practicum.shareit.util.converter.InstantConverter;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,11 +47,12 @@ public interface ItemMapper {
     @Mapping(target = "request", ignore = true)
     Item updateItemFields(@MappingTarget Item item, UpdateItemRequest request);
 
+    @Mapping(target = "id", source = "item.id")
     @Mapping(target = "available", source = "item.available")
     @Mapping(target = "description", source = "item.description")
     @Mapping(target = "name", source = "item.name")
     @Mapping(target = "request", source = "item.request")
-    ItemAndBookingDatesAndComments mapToItemBookingDates(Item item, LocalDate lastBooking, LocalDate nextBooking, List<Comment> comments);
+    ItemInfoDto mapToItemInfoDto(Item item, Booking lastBooking, Booking nextBooking, List<Comment> comments);
 
     default LocalDateTime mapToLocalDateTime(Instant instant) {
         return InstantConverter.toLocalDateTime(instant);

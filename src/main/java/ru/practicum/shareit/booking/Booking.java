@@ -52,4 +52,18 @@ public class Booking {
 
     @Enumerated(value = EnumType.STRING)
     private Status status;
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append(" id: ")
+                .append(id)
+                .append(" start: ")
+                .append(start.toString())
+                .append(" end: ")
+                .append(end.toString())
+                .append(" status: ")
+                .append(status);
+        return str.toString();
+    }
 }

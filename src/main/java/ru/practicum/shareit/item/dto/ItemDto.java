@@ -8,11 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -33,10 +29,4 @@ public class ItemDto {
     private Boolean available;
 
     private ItemRequestDto request;
-
-    private BookingDto lastBooking;
-
-    private BookingDto nextBooking;
-
-    private List<CommentDto> comments;
 }

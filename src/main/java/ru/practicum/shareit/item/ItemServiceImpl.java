@@ -3,7 +3,6 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -17,8 +16,8 @@ import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.dto.NewCommentRequest;
 import ru.practicum.shareit.item.comment.mapper.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemInfoDto;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
-import ru.practicum.shareit.item.extractor.ItemWithBookingsExtractor;
 import ru.practicum.shareit.item.mappers.ItemMapper;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
@@ -33,10 +32,10 @@ import java.util.Set;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static ru.practicum.shareit.item.filter.BookingDate.LAST;
+import static ru.practicum.shareit.item.filter.BookingDate.NEXT;
 
 @Slf4j
 @Service
@@ -50,8 +49,6 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
-    private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final ItemWithBookingsExtractor itemWithBookingsExtractor;
 
     @Override
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
@@ -63,37 +60,37 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItem(Long userId, Long itemId) {
+    public ItemInfoDto getItem(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("errors.404.items"));
         Set<Long> itemsIds = mapToItemsIds(List.of(item));
-        List<Booking> bookings = bookingRepository.lasts(itemsIds);
-        bookings.addAll(bookingRepository.nexts(itemsIds));
-        Map<Item, Pair<Optional<Booking>, Optional<Booking>>> itemWithBookings = mapToItemPairMap(bookings);
-        Pair<Optional<Booking>, Optional<Booking>> lastNextBookings = itemWithBookings.getOrDefault(item, EMPTY_PAIR);
-        List<Comment> comments = commentRepository.findByItemId(item.getId());
-        return itemMapper.mapToDto(item, lastNextBookings.getFirst().orElse(null), lastNextBookings.getSecond().orElse(null), comments);
+        List<Booking> bookings = bookingRepository.findByItemsIdsLastBookings(itemsIds);
+        bookings.addAll(bookingRepository.findByItemsIdsNextBookings(itemsIds));
+        List<Comment> itemComments = commentRepository.findByItemId(itemId);
+        return itemMapper.mapToItemInfoDto(item, LAST.getBooking(bookings), NEXT.getBooking(bookings), itemComments);
     }
 
     @Override
-    public List<ItemDto> getItems(Long userId) {
-        List<ItemDto> itemDtos = jdbcTemplate.query(itemRepository.FIND_ITEM_WITH_LAST_AND_NEXT_BOOKINGS_SQL,
-                Map.of("ownerId", userId),
-                itemWithBookingsExtractor
-        );
-        if (itemDtos == null) {
-            return null;
-        }
-        Set<Long> itemsIds = itemDtos.stream().map(ItemDto::getId).collect(toSet());
-        Map<ItemDto, List<CommentDto>> itemCommentsMap = commentRepository.findByItemsIds(itemsIds).stream()
-                .collect(groupingBy(comment ->
-                                        itemMapper.mapToDto(comment.getItem()),
-                                mapping(commentMapper::mapToDto, toList())
-                        )
-                );
+    public List<ItemInfoDto> getItems(Long userId) {
+        List<Item> items = itemRepository.findByOwnerId(userId);
+        Set<Long> itemsIds = mapToItemsIds(items);
+        Map<Long, List<Comment>> itemIdCommentsMap = commentRepository.findByItemsIds(itemsIds).stream()
+                .collect(groupingBy(comment -> comment.getItem().getId()));
+        List<Booking> bookings = bookingRepository.findByItemsIdsLastBookings(itemsIds);
+        bookings.addAll(bookingRepository.findByItemsIdsNextBookings(itemsIds));
+        Map<Long, List<Booking>> itemIdBookingsMap = bookings.stream()
+                .collect(groupingBy(booking -> booking.getItem().getId()));
 
-        return itemDtos.stream()
-                .peek(itemDto -> itemDto.setComments(itemCommentsMap.getOrDefault(itemDto, emptyList())))
+        return items.stream()
+                .map(item -> {
+                    List<Booking> itemBookings = itemIdBookingsMap.getOrDefault(item.getId(), emptyList());
+                    return itemMapper.mapToItemInfoDto(
+                            item,
+                            LAST.getBooking(itemBookings),
+                            NEXT.getBooking(itemBookings),
+                            itemIdCommentsMap.getOrDefault(item.getId(), emptyList())
+                    );
+                })
                 .toList();
     }
 
@@ -173,8 +170,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-
-    private Set<Long> mapToItemsIds(List<Item> usersItems) {
-        return usersItems.stream().map(Item::getId).collect(toSet());
+    private Set<Long> mapToItemsIds(List<Item> items) {
+        return items.stream().map(Item::getId).collect(toSet());
     }
 }

@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.jdbc.Sql;
@@ -14,7 +13,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class BookingRepositoryIT {
 
     @Autowired
@@ -32,8 +31,8 @@ class BookingRepositoryIT {
     void findLastBooking_shouldReturnLastClosestAndNextClosestBooking_whenBookingExists() {
         // given
         Set<Long> itemsIds = Set.of(1L);
-        List<Booking> bookings = bookingRepository.lasts(itemsIds);
-        bookings.addAll(bookingRepository.nexts(itemsIds));
+        List<Booking> bookings = bookingRepository.findByItemsIdsLastBookings(itemsIds);
+        bookings.addAll(bookingRepository.findByItemsIdsNextBookings(itemsIds));
         assertThat(bookings)
                 .hasSize(2)
                 .extracting(Booking::getId)
