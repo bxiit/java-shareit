@@ -21,8 +21,6 @@ public interface CommentMapper {
 
     @Mapping(target = "authorName", source = "comment.author.name")
     @Mapping(target = "item", source = "comment.item")
-    @Mapping(target = "item.lastBooking", ignore = true)
-    @Mapping(target = "item.nextBooking", ignore = true)
     CommentDto mapToDto(Comment comment);
 
     default LocalDateTime mapToLocalDateTime(Instant instant) {
