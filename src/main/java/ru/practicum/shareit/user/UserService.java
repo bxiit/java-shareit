@@ -11,9 +11,11 @@ public interface UserService {
 
     UserDto saveUser(UserDto user);
 
-    UserDto updateUser(String userId, UpdateUserRequest request);
+    UserDto updateUser(Long userId, UpdateUserRequest request);
 
-    void deleteUserById(String userId);
+    void deleteUserById(Long userId);
 
-    UserDto getUserById(String userId);
+    UserDto getUserById(Long userId);
+
+    Boolean existById(Long userId);
 }
