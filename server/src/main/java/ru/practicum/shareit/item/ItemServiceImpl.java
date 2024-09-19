@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.ForbiddenException;
-import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.common.BadRequestException;
+import ru.practicum.shareit.common.ForbiddenException;
+import ru.practicum.shareit.common.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
@@ -55,6 +55,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
+        log.info("Save item for userId({})", userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("errors.404.users"));
         ItemRequest itemRequest = getItemRequest(itemDto);
         Item item = itemMapper.mapToEntity(itemDto, user, itemRequest);

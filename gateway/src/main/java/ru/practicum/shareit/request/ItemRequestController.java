@@ -1,52 +1,51 @@
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-item-requests.
- */
-@RestController
-@RequestMapping(path = "/requests")
+@Slf4j
+@Controller
+@Validated
 @RequiredArgsConstructor
+@RequestMapping("/requests")
 public class ItemRequestController {
-
-    private final ItemRequestService itemRequestService;
+    private final ItemRequestClient itemRequestClient;
 
     @PostMapping()
-    public ItemRequestDto add(
+    public ResponseEntity<Object> add(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @RequestBody ItemRequestDto request
     ) {
-        return itemRequestService.addNewItemRequest(userId, request);
+        return itemRequestClient.addItemRequest(userId, request);
     }
 
     @GetMapping
-    public List<ItemRequestDto> get(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemRequestService.get(userId);
+    public ResponseEntity<Object> get(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemRequestClient.getUserItemRequests(userId);
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemRequestService.getAll(userId);
+    public ResponseEntity<Object> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemRequestClient.getItemRequests(userId);
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestDto get(
+    public ResponseEntity<Object> get(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @PathVariable("requestId") long requestId
     ) {
-        return itemRequestService.get(userId, requestId);
+        return itemRequestClient.getItemRequest(userId, requestId);
     }
-
-    // TODO: GET /requests. Посмотреть данные об отдельном запросе может любой пользователь.
 }

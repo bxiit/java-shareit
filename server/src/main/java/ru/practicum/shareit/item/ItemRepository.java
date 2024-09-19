@@ -59,10 +59,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> searchItemsByTextFilter(String text);
 
     @Query("""
-        select it
-        from Item as it
-        join fetch it.owner
-        where it.owner.id = ?1
-        """)
+            select it
+            from Item as it
+            join fetch it.owner
+            where it.owner.id = ?1
+            """)
     List<Item> findByOwnerId(Long ownerId);
 }

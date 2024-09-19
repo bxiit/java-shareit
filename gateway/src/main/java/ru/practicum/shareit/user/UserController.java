@@ -1,7 +1,12 @@
 package ru.practicum.shareit.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -10,44 +15,43 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.user.dto.UpdateUserRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import java.util.List;
-
-@RestController
-@RequiredArgsConstructor
+@Slf4j
+@Controller
 @RequestMapping("/users")
+@RequiredArgsConstructor
+@Validated
 public class UserController {
-    private final UserService userService;
+    private final UserClient userClient;
 
     @PostMapping
-    public UserDto saveNewUser(@RequestBody UserDto userDto) {
-        return userService.saveUser(userDto);
+    public ResponseEntity<Object> addNewUser(@RequestBody @Valid UserDto userDto) {
+        return userClient.addUser(userDto);
     }
 
     @GetMapping("/{id}")
-    public UserDto getUserById(@PathVariable("id") String id) {
-        return userService.getUserById(Long.valueOf(id));
+    public ResponseEntity<Object> getUserById(@PathVariable("id") Long id) {
+        return userClient.getUser(id);
     }
 
     @GetMapping
-    public List<UserDto> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<Object> getAllUsers() {
+        return userClient.getUsers();
     }
 
     @PatchMapping("/{id}")
-    public UserDto updateUser(
-            @RequestBody UpdateUserRequest request,
-            @PathVariable String id
+    public ResponseEntity<Object> updateUser(
+            @RequestBody @Valid UpdateUserRequest request,
+            @PathVariable Long id
     ) {
-        return userService.updateUser(Long.valueOf(id), request);
+        return userClient.updateUser(request, id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable("id") String id) {
-        userService.deleteUserById(Long.valueOf(id));
+    public ResponseEntity<Object> deleteUser(@PathVariable("id") Long id) {
+        return userClient.deleteUser(id);
     }
 }

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.common.NotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.user.User;
@@ -25,6 +25,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional
     public ItemRequestDto addNewItemRequest(long userId, ItemRequestDto request) {
+        log.info("Save item request for userID({})", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("errors.404.users"));
         ItemRequest itemRequest = itemRequestMapper.mapToItemRequest(user, request);
