@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import ru.practicum.shareit.user.User;
 
 import java.time.Instant;
@@ -25,6 +26,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "request")
 @NoArgsConstructor
+@FieldNameConstants
 @AllArgsConstructor(staticName = "of")
 public class ItemRequest {
     @Id

@@ -2,6 +2,7 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -33,18 +34,23 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestDto> get(long userId) {
-        return itemRequestRepository.findItemRequestsByRequestorId(userId).stream()
+        return itemRequestRepository.findByRequestorId(userId).stream()
                 .map(itemRequestMapper::mapToItemRequestDto)
                 .toList();
     }
 
     @Override
     public List<ItemRequestDto> getAll(long userId) {
-        return List.of();
+        Sort byCreated = Sort.by(ItemRequest.Fields.created);
+        return itemRequestRepository.findAll(byCreated).stream()
+                .map(itemRequestMapper::mapToItemRequestDto)
+                .toList();
     }
 
     @Override
     public ItemRequestDto get(long userId, long requestId) {
-        return null;
+        return itemRequestRepository.findByRequestorIdAndId(userId, requestId)
+                .map(itemRequestMapper::mapToItemRequestDto)
+                .orElseThrow(() -> new NotFoundException("errors.404.requests"));
     }
 }
