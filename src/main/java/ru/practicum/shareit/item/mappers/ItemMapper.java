@@ -13,6 +13,7 @@ import ru.practicum.shareit.item.comment.mapper.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemInfoDto;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.mappers.UserMapper;
@@ -28,6 +29,7 @@ import java.util.List;
 public interface ItemMapper {
 
     @Mapping(target = "id", source = "item.id")
+    @Mapping(target = "requestId", source = "item.request.id")
     ItemDto mapToDto(Item item, @Nullable Booking lastBooking, @Nullable Booking nextBooking, List<Comment> comments);
 
     default ItemDto mapToDto(Item item) {
@@ -37,7 +39,10 @@ public interface ItemMapper {
     @Mapping(target = "id", source = "itemDto.id")
     @Mapping(target = "name", source = "itemDto.name")
     @Mapping(target = "owner", source = "user")
-    Item mapToEntity(ItemDto itemDto, User user);
+    @Mapping(target = "request", source = "itemRequest")
+    @Mapping(target = "description", source = "itemDto.description")
+    @Mapping(target = "available", source = "itemDto.available")
+    Item mapToEntity(ItemDto itemDto, User user, ItemRequest itemRequest);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "name", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -54,7 +59,11 @@ public interface ItemMapper {
     @Mapping(target = "request", source = "item.request")
     ItemInfoDto mapToItemInfoDto(Item item, Booking lastBooking, Booking nextBooking, List<Comment> comments);
 
-    default LocalDateTime mapToLocalDateTime(Instant instant) {
-        return InstantConverter.toLocalDateTime(instant);
+    default LocalDateTime map(Instant value) {
+        return InstantConverter.toLocalDateTime(value);
+    }
+
+    default Instant map(LocalDateTime value) {
+        return InstantConverter.toInstant(value);
     }
 }

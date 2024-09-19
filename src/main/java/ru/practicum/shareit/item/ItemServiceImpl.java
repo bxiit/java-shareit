@@ -19,6 +19,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemInfoDto;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
 import ru.practicum.shareit.item.mappers.ItemMapper;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.util.converter.InstantConverter;
@@ -47,16 +49,26 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
 
     @Override
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("errors.404.users"));
-        Item item = itemMapper.mapToEntity(itemDto, user);
+        ItemRequest itemRequest = getItemRequest(itemDto);
+        Item item = itemMapper.mapToEntity(itemDto, user, itemRequest);
         itemRepository.save(item);
 
         return itemMapper.mapToDto(item);
+    }
+
+    private ItemRequest getItemRequest(ItemDto itemDto) {
+        if (itemDto.getRequestId() == null) {
+            return null;
+        }
+        return itemRequestRepository.findById(itemDto.getRequestId())
+                .orElseThrow(() -> new NotFoundException("errors.404.requests"));
     }
 
     @Override

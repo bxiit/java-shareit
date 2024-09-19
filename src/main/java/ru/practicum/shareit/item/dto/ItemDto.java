@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 @Getter
 @Setter
@@ -28,5 +27,5 @@ public class ItemDto {
     @NotNull(message = "{errors.400.items.available.null}")
     private Boolean available;
 
-    private ItemRequestDto request;
+    private Long requestId;
 }
