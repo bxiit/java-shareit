@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 volumes/**
 db
+checkstyle.xml
 
 ### STS ###
 .apt_generated
