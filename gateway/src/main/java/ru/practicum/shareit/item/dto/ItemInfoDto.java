@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.booking.dto.ItemRequestDto;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
 
 import java.util.List;
 
