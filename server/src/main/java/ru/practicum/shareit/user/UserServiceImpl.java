@@ -37,11 +37,6 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean existById(Long userId) {
-        return userRepository.existsById(userId);
-    }
-
-    @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::mapToDto)
