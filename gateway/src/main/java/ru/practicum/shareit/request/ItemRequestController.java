@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
-import java.util.List;
-
 @Slf4j
 @Controller
 @Validated
