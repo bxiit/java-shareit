@@ -14,7 +14,6 @@
     <name>ShareIt Server</name>
 
     <properties>
-        <java.version>21</java.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
     </properties>
 
