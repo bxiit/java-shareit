@@ -23,6 +23,7 @@ class BookingControllerIT {
     @Test
     @Sql(scripts = {
             "/db/sql/users.sql",
+            "/db/sql/request.sql",
             "/db/sql/item.sql",
             "/db/sql/booking.sql"
     })

@@ -17,10 +17,7 @@ import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.mappers.UserMapper;
-import ru.practicum.shareit.util.converter.InstantConverter;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper(
@@ -58,12 +55,4 @@ public interface ItemMapper {
     @Mapping(target = "name", source = "item.name")
     @Mapping(target = "request", source = "item.request")
     ItemInfoDto mapToItemInfoDto(Item item, Booking lastBooking, Booking nextBooking, List<Comment> comments);
-
-    default LocalDateTime map(Instant value) {
-        return InstantConverter.toLocalDateTime(value);
-    }
-
-    default Instant map(LocalDateTime value) {
-        return InstantConverter.toInstant(value);
-    }
 }

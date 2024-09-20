@@ -23,6 +23,7 @@ class ItemControllerIT {
     @Test
     @Sql({
             "/db/sql/users.sql",
+            "/db/sql/request.sql",
             "/db/sql/item.sql",
             "/db/sql/booking.sql"
     })
@@ -48,6 +49,7 @@ class ItemControllerIT {
     @Test
     @Sql({
             "/db/sql/users.sql",
+            "/db/sql/request.sql",
             "/db/sql/item.sql",
             "/db/sql/booking.sql"
     })
@@ -72,6 +74,7 @@ class ItemControllerIT {
     @Test
     @Sql({
             "/db/sql/users.sql",
+            "/db/sql/request.sql",
             "/db/sql/item.sql",
             "/db/sql/booking.sql",
             "/db/sql/comment.sql"

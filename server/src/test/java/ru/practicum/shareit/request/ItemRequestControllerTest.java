@@ -32,7 +32,7 @@ class ItemRequestControllerTest {
 
     @Test
     @Sql({"/db/sql/users.sql"})
-    void add() throws Exception {
+    void add_shouldReturnAddedItemRequest_whenEverythingIsOK() throws Exception {
         // given
         ItemRequestDto request = new ItemRequestDto();
         request.setDescription("need stuff");
@@ -102,7 +102,7 @@ class ItemRequestControllerTest {
 
     @Test
     @Sql({"/db/sql/users.sql", "/db/sql/request.sql", "/db/sql/item.sql"})
-    void get_() throws Exception {
+    void get_shouldReturnItemRequestsWithResponses_whenResponsesExist() throws Exception {
         // given
         long userId = 1;
 
