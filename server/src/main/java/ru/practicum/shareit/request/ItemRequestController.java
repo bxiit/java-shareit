@@ -9,12 +9,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestInfo;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
@@ -31,22 +29,22 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemRequestDto> get(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemRequestInfo> getOwnRequests(@RequestHeader("X-Sharer-User-Id") long userId) {
+        // own requests and response
         return itemRequestService.get(userId);
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemRequestDto> getAllRequests(@RequestHeader("X-Sharer-User-Id") long userId) {
+        // other requests
         return itemRequestService.getAll(userId);
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestDto get(
+    public ItemRequestInfo get(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @PathVariable("requestId") long requestId
     ) {
         return itemRequestService.get(userId, requestId);
     }
-
-    // TODO: GET /requests. Посмотреть данные об отдельном запросе может любой пользователь.
 }
