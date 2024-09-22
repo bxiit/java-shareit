@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.Expressions;
 
 import java.time.Instant;
 
@@ -10,7 +9,7 @@ public enum State implements QueryParameters {
         @Override
         public Predicate getQueryParams() {
             // пустой предикат (where true = true)
-            return Expressions.TRUE.isTrue();
+            return null;
         }
     },
     CURRENT {

@@ -192,7 +192,7 @@ class UserControllerTest {
                 )
                 // then
                 .andExpectAll(
-                    status().isNoContent()
+                        status().isNoContent()
                 );
     }
 }

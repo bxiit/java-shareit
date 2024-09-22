@@ -2,11 +2,12 @@ package ru.practicum.shareit.item;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 import java.util.List;
 import java.util.Set;
 
-public interface ItemRepository extends JpaRepository<Item, Long> {
+public interface ItemRepository extends JpaRepository<Item, Long>, QuerydslPredicateExecutor<Item> {
 
     void deleteItemByOwner_IdAndId(Long ownerId, Long id);
 
@@ -27,10 +28,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByOwnerId(Long ownerId);
 
     @Query("""
-        select it
-        from Item it
-        join fetch it.request
-        where it.request.id in ?1
-        """)
+            select it
+            from Item it
+            join fetch it.request
+            where it.request.id in ?1
+            """)
     List<Item> findByRequestIds(Set<Long> requestIds);
 }

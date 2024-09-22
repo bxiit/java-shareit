@@ -3,7 +3,6 @@ package ru.practicum.shareit.util.converter;
 import lombok.experimental.UtilityClass;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -12,10 +11,6 @@ import static java.time.ZoneOffset.UTC;
 @UtilityClass
 public class InstantConverter {
     private static final ZoneOffset ZONE_OFFSET = UTC;
-
-    public LocalDate toLocalDate(Instant instant) {
-        return LocalDate.ofInstant(instant, ZONE_OFFSET);
-    }
 
     public LocalDateTime toLocalDateTime(Instant instant) {
         return LocalDateTime.ofInstant(instant, ZONE_OFFSET);

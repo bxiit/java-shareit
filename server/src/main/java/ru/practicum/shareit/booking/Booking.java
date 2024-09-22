@@ -21,16 +21,13 @@ import ru.practicum.shareit.user.User;
 
 import java.time.Instant;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
+@Table(name = "booking")
 @EqualsAndHashCode(of = "id")
 @AllArgsConstructor(staticName = "of")
-@Table(name = "booking")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,18 +49,4 @@ public class Booking {
 
     @Enumerated(value = EnumType.STRING)
     private Status status;
-
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append(" id: ")
-                .append(id)
-                .append(" start: ")
-                .append(start.toString())
-                .append(" end: ")
-                .append(end.toString())
-                .append(" status: ")
-                .append(status);
-        return str.toString();
-    }
 }
