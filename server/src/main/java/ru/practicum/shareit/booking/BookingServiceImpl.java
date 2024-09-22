@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +16,6 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
@@ -99,26 +97,5 @@ public class BookingServiceImpl implements BookingService {
         if (FALSE.equals(item.getAvailable())) {
             throw new UnavailableItemException("errors.400.bookings.unavailable");
         }
-    }
-
-    private boolean isItemFree(final Item item, Instant start, Instant end) {
-        QBooking booking = QBooking.booking;
-        BooleanExpression byItem = booking.item.id.eq(item.getId());
-
-        // or if new booking request has 31 jan -> 6 jan
-        BooleanExpression firstCase = booking.start.after(start).and(booking.end.after(end));
-
-        // or if new booking request has 2 jan -> 9 jan
-        BooleanExpression secondCase = booking.start.before(start).and(booking.end.before(end));
-
-        // or if new booking request has 31 dec -> 10 jan
-        BooleanExpression thirdCase = booking.start.after(start).and(booking.end.before(end));
-
-        // or if new booking request has 3 jan -> 6 jan
-        BooleanExpression fourthCase = booking.start.after(start).and(booking.end.after(end));
-
-        return bookingRepository.exists(
-                Expressions.allOf(byItem, firstCase, secondCase, thirdCase, fourthCase)
-        );
     }
 }

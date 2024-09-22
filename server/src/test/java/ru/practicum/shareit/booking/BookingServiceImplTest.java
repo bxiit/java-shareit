@@ -14,14 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.common.BadRequestException;
 import ru.practicum.shareit.common.NotFoundException;
 import ru.practicum.shareit.common.UnavailableItemException;
 import ru.practicum.shareit.config.MappersConfig;
+import ru.practicum.shareit.config.PersistEntity.BookingPersister;
+import ru.practicum.shareit.config.PersistEntity.ItemPersister;
+import ru.practicum.shareit.config.PersistEntity.ItemRequestPersister;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.testbuilder.BookingTestBuilder;
-import ru.practicum.shareit.testbuilder.ItemRequestTestBuilder;
 import ru.practicum.shareit.testbuilder.ItemTestBuilder;
 import ru.practicum.shareit.testbuilder.UserTestBuilder;
 import ru.practicum.shareit.user.User;
@@ -32,11 +34,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static ru.practicum.shareit.config.PersistEntity.UserPersister;
 
 @DataJpaTest
 @Transactional
@@ -66,20 +68,9 @@ class BookingServiceImplTest {
     @Test
     void save_shouldReturnAddedBooking_whenEverythingIsOK() {
         // given
-        List<User> sourceUsers = makeDefaultUsers();
-        for (User sourceUser : sourceUsers) {
-            em.persist(sourceUser);
-        }
-
-        List<ItemRequest> sourceItemRequests = makeDefaultItemRequests(sourceUsers);
-        for (ItemRequest sourceItemRequest : sourceItemRequests) {
-            em.persist(sourceItemRequest);
-        }
-
-        List<Item> sourceItems = makeDefaultItems(sourceUsers, sourceItemRequests);
-        for (Item sourceItem : sourceItems) {
-            em.persist(sourceItem);
-        }
+        var sourceUsers = new UserPersister().setEntityManager(em).getPersistedData();
+        var sourceItemRequests = new ItemRequestPersister(sourceUsers).setEntityManager(em).getPersistedData();
+        var sourceItems = new ItemPersister(sourceUsers, sourceItemRequests).setEntityManager(em).getPersistedData();
 
         Long userId = sourceUsers.getFirst().getId();
         Long itemId = sourceItems.getFirst().getId();
@@ -235,9 +226,7 @@ class BookingServiceImplTest {
         em.persist(item);
 
         List<Booking> pastCurrentFutureBookings = getPastCurrentFutureBookings(item, user);
-        for (Booking booking : pastCurrentFutureBookings) {
-            em.persist(booking);
-        }
+        pastCurrentFutureBookings.forEach(em::persist);
 
         Booking pastBooking = pastCurrentFutureBookings.getFirst();
 
@@ -261,9 +250,7 @@ class BookingServiceImplTest {
         em.persist(item);
 
         List<Booking> pastCurrentFutureBookings = getPastCurrentFutureBookings(item, user);
-        for (Booking booking : pastCurrentFutureBookings) {
-            em.persist(booking);
-        }
+        pastCurrentFutureBookings.forEach(em::persist);
 
         Booking currentBooking = pastCurrentFutureBookings.get(1);
 
@@ -287,9 +274,7 @@ class BookingServiceImplTest {
         em.persist(item);
 
         List<Booking> pastCurrentFutureBookings = getPastCurrentFutureBookings(item, user);
-        for (Booking booking : pastCurrentFutureBookings) {
-            em.persist(booking);
-        }
+        pastCurrentFutureBookings.forEach(em::persist);
 
         Booking futureBooking = pastCurrentFutureBookings.getLast();
 
@@ -313,9 +298,7 @@ class BookingServiceImplTest {
         em.persist(item);
 
         List<Booking> pastCurrentFutureBookings = getPastCurrentFutureBookings(item, user);
-        for (Booking booking : pastCurrentFutureBookings) {
-            em.persist(booking);
-        }
+        pastCurrentFutureBookings.forEach(em::persist);
 
         Booking futureBooking = pastCurrentFutureBookings.getLast();
 
@@ -339,42 +322,101 @@ class BookingServiceImplTest {
         em.persist(item);
 
         List<Booking> pastCurrentFutureBookings = getPastCurrentFutureBookings(item, user);
-        for (Booking booking : pastCurrentFutureBookings) {
-            em.persist(booking);
-        }
+        pastCurrentFutureBookings.forEach(em::persist);
 
         Booking rejectedBooking = BookingTestBuilder.aBooking()
                 .withItem(item)
                 .withBooker(user)
                 .withStatus(Status.REJECTED)
                 .withStart(Instant.now().minus(14, DAYS))
-                .withStart(Instant.now().minus(7, DAYS))
+                .withEnd(Instant.now().minus(7, DAYS))
                 .build();
+        em.persist(rejectedBooking);
 
         // when
+        List<BookingDto> rejectedBookings = bookingService.getByState(user.getId(), State.REJECTED);
 
         // then
+        assertThat(rejectedBookings.size(), equalTo(1));
+        assertThat(rejectedBookings.getFirst().getId(), equalTo(rejectedBooking.getId()));
+        assertThat(rejectedBookings.getFirst().getId(), equalTo(rejectedBooking.getId()));
+        assertThat(rejectedBookings.getFirst().getStart().isBefore(LocalDateTime.now()), equalTo(true));
+        assertThat(rejectedBookings.getFirst().getEnd().isBefore(LocalDateTime.now()), equalTo(true));
     }
 
-    //        List<User> sourceUsers = makeDefaultUsers();
-    //        for (User sourceUser : sourceUsers) {
-    //            em.persist(sourceUser);
-    //        }
-    //
-    //        List<ItemRequest> sourceItemRequests = makeDefaultItemRequests(sourceUsers);
-    //        for (ItemRequest sourceItemRequest : sourceItemRequests) {
-    //            em.persist(sourceItemRequest);
-    //        }
-    //
-    //        List<Item> sourceItems = makeDefaultItems(sourceUsers, sourceItemRequests);
-    //        for (Item sourceItem : sourceItems) {
-    //            em.persist(sourceItem);
-    //        }
-    //
-    //        List<Booking> sourceBookings = makeDefaultBooking(sourceUsers, sourceItems);
-    //        for (Booking sourceBooking : sourceBookings) {
-    //            em.persist(sourceBooking);
-    //        }
+    @Test
+    void getByOwner_shouldReturnThreeBookings_whenUserHasThreeAndStatusIsWaiting() {
+        // given
+        var sourceUsers = new UserPersister().setEntityManager(em).getPersistedData();
+        var sourceItemRequests = new ItemRequestPersister(sourceUsers).setEntityManager(em).getPersistedData();
+        var sourceItems = new ItemPersister(sourceUsers, sourceItemRequests).setEntityManager(em).getPersistedData();
+        var sourceBookings = new BookingPersister(sourceItems, sourceUsers).setEntityManager(em).getPersistedData();
+        Long ownerId = sourceUsers.get(4).getId();
+
+        // when
+        var bookings = bookingService.getByOwner(ownerId, State.WAITING);
+
+        // then
+        assertThat(bookings.size(), equalTo(3));
+    }
+
+    @Test
+    void getByOwner_shouldThrowNotFoundException_whenUserDoesNotHaveAnyBookings() {
+        // given
+        var sourceUsers = new UserPersister().setEntityManager(em).getPersistedData();
+        var sourceItemRequests = new ItemRequestPersister(sourceUsers).setEntityManager(em).getPersistedData();
+        var sourceItems = new ItemPersister(sourceUsers, sourceItemRequests).setEntityManager(em).getPersistedData();
+        var sourceBookings = new BookingPersister(sourceItems, sourceUsers).setEntityManager(em).getPersistedData();
+        Long ownerId = 12345L;
+
+        // when
+        Executable getByOwner = () -> bookingService.getByOwner(ownerId, State.WAITING);
+
+        // then
+        var notFoundException = assertThrows(NotFoundException.class, getByOwner);
+        assertThat(notFoundException.getMessage(), equalTo("errors.404.bookings"));
+    }
+
+    @Test
+    void update_shouldReturnUpdatedBooking_whenApprovedIsTrue() {
+        // given
+        var user = UserTestBuilder.aUser().build();
+        em.persist(user);
+        var item = ItemTestBuilder.anItem().withOwner(user).build();
+        em.persist(item);
+
+        var booker = UserTestBuilder.aUser().build();
+        em.persist(booker);
+        var booking = BookingTestBuilder.aBooking().withItem(item).withBooker(booker).build();
+        em.persist(booking);
+
+        // when
+        var updatedBooking = bookingService.update(user.getId(), booking.getId(), Boolean.TRUE);
+
+        // then
+        assertThat(updatedBooking.getStatus(), equalTo(Status.APPROVED));
+    }
+
+    @Test
+    void update_shouldThrowBadRequestException_whenOwnerIsWrong() {
+        // given
+        var user = UserTestBuilder.aUser().build();
+        em.persist(user);
+        var item = ItemTestBuilder.anItem().withOwner(user).build();
+        em.persist(item);
+
+        var booker = UserTestBuilder.aUser().build();
+        em.persist(booker);
+        var booking = BookingTestBuilder.aBooking().withItem(item).withBooker(booker).build();
+        em.persist(booking);
+
+        // when
+        Executable updateBooking = () -> bookingService.update(12345L, booking.getId(), Boolean.TRUE);
+
+        // then
+        var badRequestException = assertThrows(BadRequestException.class, updateBooking);
+        assertThat(badRequestException.getMessage(), equalTo("errors.400.bookings.not_allowed"));
+    }
 
     private List<Booking> getPastCurrentFutureBookings(Item item, User user) {
         Booking pastBooking = BookingTestBuilder.aBooking()
@@ -400,133 +442,5 @@ class BookingServiceImplTest {
                 .withEnd(NOW.plus(10, DAYS))
                 .build();
         return List.of(pastBooking, currentBooking, futureBooking);
-    }
-
-    private void persistDefaultEntities() {
-        List<User> sourceUsers = makeDefaultUsers();
-        for (User sourceUser : sourceUsers) {
-            em.persist(sourceUser);
-        }
-
-        List<ItemRequest> sourceItemRequests = makeDefaultItemRequests(sourceUsers);
-        for (ItemRequest sourceItemRequest : sourceItemRequests) {
-            em.persist(sourceItemRequest);
-        }
-
-        List<Item> sourceItems = makeDefaultItems(sourceUsers, sourceItemRequests);
-        for (Item sourceItem : sourceItems) {
-            em.persist(sourceItem);
-        }
-
-        List<Booking> sourceBookings = makeDefaultBooking(sourceUsers, sourceItems);
-        for (Booking sourceBooking : sourceBookings) {
-            em.persist(sourceBooking);
-        }
-    }
-
-    private List<Booking> makeDefaultBooking(List<User> sourceUsers, List<Item> sourceItems) {
-        Booking firstBooking = BookingTestBuilder.aBooking()
-                .withStart(NOW.minus(2 * 365, DAYS))
-                .withEnd(NOW.minus(365, DAYS))
-                .withItem(sourceItems.getFirst())
-                .withBooker(sourceUsers.get(1))
-                .withStatus(Status.APPROVED)
-                .build();
-        Booking secondBooking = BookingTestBuilder.aBooking()
-                .withStart(NOW.minus(7, DAYS))
-                .withEnd(NOW.minus(5, DAYS))
-                .withItem(sourceItems.getFirst())
-                .withBooker(sourceUsers.get(2))
-                .withStatus(Status.APPROVED)
-                .build();
-        Booking thirdBooking = BookingTestBuilder.aBooking()
-                .withStart(NOW.plus(5, DAYS))
-                .withEnd(NOW.plus(7, DAYS))
-                .withItem(sourceItems.getFirst())
-                .withBooker(sourceUsers.get(3))
-                .build();
-        Booking fourthBooking = BookingTestBuilder.aBooking()
-                .withStart(NOW.plus(365, DAYS))
-                .withEnd(NOW.plus(2 * 365, DAYS))
-                .withItem(sourceItems.getFirst())
-                .withBooker(sourceUsers.get(4))
-                .build();
-        Booking fifthBooking = BookingTestBuilder.aBooking()
-                .withStart(NOW.plus(30, MINUTES))
-                .withEnd(NOW.plus(60, MINUTES))
-                .withItem(sourceItems.get(1))
-                .withBooker(sourceUsers.get(4))
-                .build();
-        Booking sixthBooking = BookingTestBuilder.aBooking()
-                .withStart(NOW.minus(30, MINUTES))
-                .withEnd(NOW.minus(60, MINUTES))
-                .withItem(sourceItems.get(1))
-                .withBooker(sourceUsers.get(4))
-                .build();
-
-        return List.of(firstBooking, secondBooking, thirdBooking, fourthBooking, fifthBooking, sixthBooking);
-    }
-
-    private List<Item> makeDefaultItems(List<User> sourceUsers, List<ItemRequest> sourceItemRequests) {
-        Item firstItem = ItemTestBuilder.anItem()
-                .withName("Item of first user")
-                .withDescription("Description of item of first user")
-                .withAvailable(true)
-                .withOwner(sourceUsers.getFirst())
-                .build();
-
-        Item secondItem = ItemTestBuilder.anItem()
-                .withName("Item of second user")
-                .withDescription("Description of item of second user")
-                .withAvailable(true)
-                .withOwner(sourceUsers.get(1))
-                .build();
-
-        Item thirdItem = ItemTestBuilder.anItem()
-                .withName("Item response for 1")
-                .withDescription("Response item for request with id 1")
-                .withAvailable(true)
-                .withOwner(sourceUsers.get(1))
-                .build();
-
-        Item fourthItem = ItemTestBuilder.anItem()
-                .withName("Item response for 1")
-                .withDescription("Second response item for request with id 1")
-                .withAvailable(true)
-                .withOwner(sourceUsers.get(1))
-                .withRequest(sourceItemRequests.getFirst())
-                .build();
-
-        Item fifthItem = ItemTestBuilder.anItem()
-                .withName("Item response for 2")
-                .withDescription("Response item for request with id 2")
-                .withAvailable(true)
-                .withOwner(sourceUsers.get(1))
-                .withRequest(sourceItemRequests.get(1))
-                .build();
-
-        return List.of(firstItem, secondItem, thirdItem, fourthItem, fifthItem);
-    }
-
-    private List<ItemRequest> makeDefaultItemRequests(List<User> sourceUsers) {
-        ItemRequest firstItemRequest = ItemRequestTestBuilder.anItemRequest()
-                .withRequestor(sourceUsers.getFirst())
-                .withDescription("urgently need some food")
-                .build();
-        ItemRequest secondItemRequest = ItemRequestTestBuilder.anItemRequest()
-                .withRequestor(sourceUsers.getFirst())
-                .withDescription("does anyone have headphones?")
-                .build();
-
-        return List.of(firstItemRequest, secondItemRequest);
-    }
-
-    private List<User> makeDefaultUsers() {
-        User defaultUser = UserTestBuilder.aUser().build();
-        User secondUser = UserTestBuilder.aUser().withEmail("booker1@gmail.com").withName("booker1").build();
-        User thirdUser = UserTestBuilder.aUser().withEmail("booker2@gmail.com").withName("booker2").build();
-        User fourthUser = UserTestBuilder.aUser().withEmail("booker3@gmail.com").withName("booker3").build();
-        User fifthUser = UserTestBuilder.aUser().withEmail("booker4@gmail.com").withName("booker4").build();
-        return List.of(defaultUser, secondUser, thirdUser, fourthUser, fifthUser);
     }
 }

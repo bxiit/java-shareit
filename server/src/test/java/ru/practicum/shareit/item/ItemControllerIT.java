@@ -1,14 +1,18 @@
 package ru.practicum.shareit.item;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.item.comment.dto.NewCommentRequest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,6 +23,9 @@ class ItemControllerIT {
 
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    ObjectMapper json;
 
     @Test
     @Sql({
@@ -94,5 +101,31 @@ class ItemControllerIT {
                         jsonPath("$..[0].comments.length()").value(3)
                 );
         // $..[0].comments -> поле comments первого элемента из списка
+    }
+
+    @Test
+    @Sql({
+            "/db/sql/users.sql",
+            "/db/sql/request.sql",
+            "/db/sql/item.sql",
+            "/db/sql/booking.sql"
+    })
+    void saveComment_shouldReturnSavedComment_whenEverythingIsOK() throws Exception {
+        // given
+        long itemId = 1;
+        long userId = 2;
+        var request = new NewCommentRequest("Nice!");
+
+        // when
+        mockMvc.perform(
+                        post("/items/{itemId}/comment", itemId)
+                                .header("X-Sharer-User-Id", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json.writeValueAsString(request))
+                )
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.authorName").value("booker1")
+                );
     }
 }

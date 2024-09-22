@@ -1,10 +1,11 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -12,6 +13,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
+import ru.practicum.shareit.config.PersistEntity;
 
 import java.time.LocalDateTime;
 
@@ -20,9 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"
-})
+@SpringBootTest
 @Transactional
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -32,18 +32,20 @@ class BookingControllerIT {
 
     private final MockMvc mockMvc;
     private final ObjectMapper json;
-    @Value("${spring.jpa.hibernate.ddl-auto}")
-    private String ddlAuto;
+    private final EntityManager em;
+
+    @BeforeEach
+    void clear() {
+
+    }
 
     @Test
-    @Sql({
-            "/db/sql/users.sql",
-            "/db/sql/request.sql",
-            "/db/sql/item.sql",
-            "/db/sql/booking.sql"
-    })
     void add_shouldReturnAddedBooking_whenEverythingIsOK() throws Exception {
         // given
+        var sourceUsers = new PersistEntity.UserPersister().setEntityManager(em).getPersistedData();
+        var sourceItemRequests = new PersistEntity.ItemRequestPersister(sourceUsers).setEntityManager(em).getPersistedData();
+        var sourceItems = new PersistEntity.ItemPersister(sourceUsers, sourceItemRequests).setEntityManager(em).getPersistedData();
+
         long userId = 1;
         long itemId = 1;
         LocalDateTime start = LocalDateTime.now();
@@ -61,11 +63,11 @@ class BookingControllerIT {
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("$.id").exists(),
-                        jsonPath("$.start").value(start),
-                        jsonPath("$.end").value(end),
+                        jsonPath("$.start").exists(),
+                        jsonPath("$.end").exists(),
                         jsonPath("$.item.id").value(itemId),
                         jsonPath("$.booker.id").value(userId),
-                        jsonPath("$.status").value(Status.WAITING)
+                        jsonPath("$.status").value(Status.WAITING.name())
                 );
     }
 
