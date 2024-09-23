@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,7 +15,6 @@ import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.config.PersistEntity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -28,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class BookingControllerIT {
+class BookingControllerTest {
 
     private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 

@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.dto.ItemResponseInfo;
 import ru.practicum.shareit.item.mappers.ItemMapper;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -28,9 +29,17 @@ public interface ItemRequestMapper {
     @Mapping(target = "created", qualifiedByName = "instantToLocalDateTime")
     ItemRequestDto mapToItemRequestDto(ItemRequest itemRequest);
 
+    @Mapping(target = "responses", qualifiedByName = "toResponseInfo", source = "items")
     @Mapping(target = "requestorId", source = "itemRequest.requestor.id")
     @Mapping(target = "created", qualifiedByName = "instantToLocalDateTime")
-    ItemRequestInfo mapToItemRequestDto(ItemRequest itemRequest, List<Item> item);
+    ItemRequestInfo mapToItemRequestInfo(ItemRequest itemRequest, List<Item> items);
+
+    @Named("toResponseInfo")
+    default List<ItemResponseInfo> toResponseInfo(List<Item> items) {
+        return items.stream()
+                .map(item -> new ItemResponseInfo(item.getId(), item.getName(), item.getOwner().getId()))
+                .toList();
+    }
 
     @Named("instantToLocalDateTime")
     default LocalDateTime map(Instant value) {

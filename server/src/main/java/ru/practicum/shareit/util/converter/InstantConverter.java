@@ -13,6 +13,9 @@ public class InstantConverter {
     private static final ZoneOffset ZONE_OFFSET = UTC;
 
     public LocalDateTime toLocalDateTime(Instant instant) {
+        if (instant == null) {
+            return null;
+        }
         return LocalDateTime.ofInstant(instant, ZONE_OFFSET);
     }
 

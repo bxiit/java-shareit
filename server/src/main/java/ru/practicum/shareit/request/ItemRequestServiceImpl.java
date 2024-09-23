@@ -55,7 +55,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .collect(groupingBy(Item::getRequest));
 
         return userItemRequests.stream()
-                .map(request -> itemRequestMapper.mapToItemRequestDto(request, itemRequestsResponsesMap.getOrDefault(request, emptyList())))
+                .map(request -> itemRequestMapper.mapToItemRequestInfo(request, itemRequestsResponsesMap.getOrDefault(request, emptyList())))
                 .toList();
     }
 
@@ -76,7 +76,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Map<ItemRequest, List<Item>> itemRequestResponsesMap = itemRepository.findByRequestIds(fetchIds(itemRequest)).stream()
                 .collect(groupingBy(Item::getRequest));
 
-        return itemRequestMapper.mapToItemRequestDto(itemRequest, itemRequestResponsesMap.getOrDefault(itemRequest, emptyList()));
+        return itemRequestMapper.mapToItemRequestInfo(itemRequest, itemRequestResponsesMap.getOrDefault(itemRequest, emptyList()));
     }
 
     private Set<Long> fetchIds(ItemRequest itemRequest) {

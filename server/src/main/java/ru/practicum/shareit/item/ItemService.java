@@ -24,6 +24,4 @@ public interface ItemService {
     void deleteItem(Long userId, long itemId);
 
     CommentDto addNewComment(Long userId, Long itemId, NewCommentRequest request);
-
-    ;
 }

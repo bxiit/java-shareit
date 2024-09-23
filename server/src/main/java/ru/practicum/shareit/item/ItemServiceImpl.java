@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -12,6 +11,7 @@ import ru.practicum.shareit.common.ForbiddenException;
 import ru.practicum.shareit.common.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentRepository;
+import ru.practicum.shareit.item.comment.QComment;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.dto.NewCommentRequest;
 import ru.practicum.shareit.item.comment.mapper.CommentMapper;
@@ -25,16 +25,14 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.util.converter.InstantConverter;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static ru.practicum.shareit.item.filter.BookingDate.LAST;
 import static ru.practicum.shareit.item.filter.BookingDate.NEXT;
@@ -86,7 +84,8 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemInfoDto> getItems(Long userId) {
         List<Item> items = itemRepository.findByOwnerId(userId);
         Set<Long> itemsIds = mapToItemsIds(items);
-        Map<Long, List<Comment>> itemIdCommentsMap = commentRepository.findByItemsIds(itemsIds).stream()
+        Iterable<Comment> comments = commentRepository.findAll(QComment.comment.item.id.in(itemsIds));
+        Map<Long, List<Comment>> itemIdCommentsMap = StreamSupport.stream(comments.spliterator(), false)
                 .collect(groupingBy(comment -> comment.getItem().getId()));
         List<Booking> bookings = bookingRepository.findByItemsIdsLastBookings(itemsIds);
         bookings.addAll(bookingRepository.findByItemsIdsNextBookings(itemsIds));

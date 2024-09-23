@@ -121,10 +121,36 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getAll() {
+    @Sql({"/db/sql/users.sql", "/db/sql/request.sql", "/db/sql/item.sql"})
+    void getAll() throws Exception {
+        // given
+        long userId = 2;
+
+        // when
+        mvc.perform(
+                        get("/requests/all")
+                                .header("X-Sharer-User-Id", userId)
+                )
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.length()").value(2)
+                );
     }
 
     @Test
-    void testGet() {
+    @Sql({"/db/sql/users.sql", "/db/sql/request.sql", "/db/sql/item.sql"})
+    void get_() throws Exception {
+        // given
+        long requestorId = 1;
+        long requestId = 1;
+
+        // when
+        mvc.perform(
+                        get("/requests/{requestId}", requestId)
+                                .header(X_SHARER_USER_ID, requestorId)
+                )
+                .andExpectAll(
+                        status().isOk()
+                );
     }
 }

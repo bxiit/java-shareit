@@ -216,6 +216,24 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void getById_shouldThrowNotFoundException_whenBookingDoesNotExists() {
+        // given
+        User user = UserTestBuilder.aUser().build();
+        em.persist(user);
+
+        Item item = ItemTestBuilder.anItem().withOwner(user).build();
+        em.persist(item);
+
+        Long bookingId = 312123L;
+        // when
+        Executable getBookingById = () -> bookingService.getById(user.getId(), bookingId);
+
+        // then
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, getBookingById);
+        assertThat(notFoundException.getMessage(), equalTo("errors.404.bookings"));
+    }
+
+    @Test
     void getByState_shouldReturnOnePastBooking_whenStateIsPast() {
         // given
         User user = UserTestBuilder.aUser().build();
@@ -397,6 +415,26 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void update_shouldReturnUpdatedBooking_whenApprovedIsFalse() {
+        // given
+        var user = UserTestBuilder.aUser().build();
+        em.persist(user);
+        var item = ItemTestBuilder.anItem().withOwner(user).build();
+        em.persist(item);
+
+        var booker = UserTestBuilder.aUser().build();
+        em.persist(booker);
+        var booking = BookingTestBuilder.aBooking().withItem(item).withBooker(booker).build();
+        em.persist(booking);
+
+        // when
+        var updatedBooking = bookingService.update(user.getId(), booking.getId(), Boolean.FALSE);
+
+        // then
+        assertThat(updatedBooking.getStatus(), equalTo(Status.WAITING));
+    }
+
+    @Test
     void update_shouldThrowBadRequestException_whenOwnerIsWrong() {
         // given
         var user = UserTestBuilder.aUser().build();
@@ -415,6 +453,26 @@ class BookingServiceImplTest {
         // then
         var badRequestException = assertThrows(BadRequestException.class, updateBooking);
         assertThat(badRequestException.getMessage(), equalTo("errors.400.bookings.not_allowed"));
+    }
+
+    @Test
+    void update_shouldThrowNotFoundException_whenBookingDoesNotExist() {
+        // given
+        var user = UserTestBuilder.aUser().build();
+        em.persist(user);
+        var item = ItemTestBuilder.anItem().withOwner(user).build();
+        em.persist(item);
+
+        var booker = UserTestBuilder.aUser().build();
+        em.persist(booker);
+        Long notExistingBookingId = 123321123L;
+
+        // when
+        Executable updateBooking = () -> bookingService.update(user.getId(), notExistingBookingId, Boolean.TRUE);
+
+        // then
+        var notFoundException = assertThrows(NotFoundException.class, updateBooking);
+        assertThat(notFoundException.getMessage(), equalTo("errors.404.bookings"));
     }
 
     private List<Booking> getPastCurrentFutureBookings(Item item, User user) {
