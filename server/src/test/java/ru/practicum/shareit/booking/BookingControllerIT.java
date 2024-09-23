@@ -16,7 +16,9 @@ import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.config.PersistEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,9 +36,75 @@ class BookingControllerIT {
     private final ObjectMapper json;
     private final EntityManager em;
 
-    @BeforeEach
-    void clear() {
+    @Test
+    void get_shouldReturnBookingDto_whenBookingExists() throws Exception {
+        // given
+        var sourceUsers = new PersistEntity.UserPersister().setEntityManager(em).getPersistedData();
+        var sourceItemRequests = new PersistEntity.ItemRequestPersister(sourceUsers).setEntityManager(em).getPersistedData();
+        var sourceItems = new PersistEntity.ItemPersister(sourceUsers, sourceItemRequests).setEntityManager(em).getPersistedData();
+        var sourceBookings = new PersistEntity.BookingPersister(sourceItems, sourceUsers).setEntityManager(em).getPersistedData();
+        long userId = sourceUsers.getFirst().getId();
 
+        var bookingId = sourceBookings.getFirst().getId();
+
+        // when
+        mockMvc.perform(
+                        get("/bookings/" + bookingId)
+                                .header("X-Sharer-User-Id", userId)
+                )
+                // then
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value(Status.APPROVED.name())
+                );
+    }
+
+    @Test
+    void getByState_shouldReturnBookings_whenStateMatches() throws Exception {
+        // given
+        var sourceUsers = new PersistEntity.UserPersister().setEntityManager(em).getPersistedData();
+        var sourceItemRequests = new PersistEntity.ItemRequestPersister(sourceUsers).setEntityManager(em).getPersistedData();
+        var sourceItems = new PersistEntity.ItemPersister(sourceUsers, sourceItemRequests).setEntityManager(em).getPersistedData();
+        var sourceBookings = new PersistEntity.BookingPersister(sourceItems, sourceUsers).setEntityManager(em).getPersistedData();
+
+        long userId = sourceUsers.get(1).getId();
+        var state = "ALL";
+
+        // when
+        mockMvc.perform(
+                        get("/bookings")
+                                .header("X-Sharer-User-Id", userId)
+                                .param("state", state)
+                )
+                // then
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$[0].id").exists()
+                );
+    }
+
+    @Test
+    void getByOwner_shouldReturnBookings_whenOwnerExists() throws Exception {
+        // given
+        var sourceUsers = new PersistEntity.UserPersister().setEntityManager(em).getPersistedData();
+        var sourceItemRequests = new PersistEntity.ItemRequestPersister(sourceUsers).setEntityManager(em).getPersistedData();
+        var sourceItems = new PersistEntity.ItemPersister(sourceUsers, sourceItemRequests).setEntityManager(em).getPersistedData();
+        var sourceBookings = new PersistEntity.BookingPersister(sourceItems, sourceUsers).setEntityManager(em).getPersistedData();
+
+        long userId = sourceUsers.get(1).getId();
+        var state = "ALL";
+
+        // when
+        mockMvc.perform(
+                        get("/bookings/owner")
+                                .header("X-Sharer-User-Id", userId)
+                                .param("state", state)
+                )
+                // then
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$[0].id").exists()
+                );
     }
 
     @Test
@@ -46,8 +114,8 @@ class BookingControllerIT {
         var sourceItemRequests = new PersistEntity.ItemRequestPersister(sourceUsers).setEntityManager(em).getPersistedData();
         var sourceItems = new PersistEntity.ItemPersister(sourceUsers, sourceItemRequests).setEntityManager(em).getPersistedData();
 
-        long userId = 1;
-        long itemId = 1;
+        long userId = sourceUsers.getFirst().getId();
+        long itemId = sourceItems.getFirst().getId();
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = start.plusDays(3L);
         NewBookingRequest request = new NewBookingRequest(start, end, itemId);

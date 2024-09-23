@@ -48,8 +48,7 @@ class BookingServiceImplTest {
 
     private static final Instant NOW = Instant.now();
     private static final LocalDateTime NOW_LDT = LocalDateTime.now();
-    @Autowired
-    private BookingService bookingService;
+    private final BookingService bookingService;
     private final EntityManager em;
 
     @TestConfiguration

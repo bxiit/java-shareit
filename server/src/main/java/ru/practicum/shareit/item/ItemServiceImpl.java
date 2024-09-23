@@ -44,7 +44,6 @@ import static ru.practicum.shareit.item.filter.BookingDate.NEXT;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private static final Pair<Optional<Booking>, Optional<Booking>> EMPTY_PAIR = Pair.of(Optional.empty(), Optional.empty());
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
@@ -150,23 +149,6 @@ public class ItemServiceImpl implements ItemService {
         );
         commentRepository.save(comment);
         return commentMapper.mapToDto(comment);
-    }
-
-    /**
-     * @param bookings - Список бронирований которую нужно преобразовать в мапу,
-     *                 где ключ -> вещь, значение -> Пара из последней и следующей брони
-     */
-    private Map<Item, Pair<Optional<Booking>, Optional<Booking>>> mapToItemPairMap(List<Booking> bookings) {
-        return bookings.stream().collect(groupingBy(Booking::getItem))
-                .entrySet().stream()
-                .collect(toMap(
-                                Map.Entry::getKey,
-                                entry -> Pair.of(
-                                        entry.getValue().stream().filter(booking -> booking.getStart().isBefore(Instant.now())).findFirst(),
-                                        entry.getValue().stream().filter(booking -> booking.getStart().isAfter(Instant.now())).findFirst()
-                                )
-                        )
-                );
     }
 
     private void checkForBooking(Long userId, Long itemId) {
