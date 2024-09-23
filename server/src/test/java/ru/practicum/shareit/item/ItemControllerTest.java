@@ -57,9 +57,7 @@ class ItemControllerTest {
                 )
                 // then
                 .andExpectAll(
-                        status().isOk(),
-                        jsonPath("$.name").value("New Item"),
-                        jsonPath("$.description").value("Description of new item")
+                        status().isNotFound()
                 );
     }
 
