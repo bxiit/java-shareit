@@ -41,6 +41,6 @@ public class ItemRequest {
     @JoinColumn(name = "requestor_id")
     private User requestor;
 
-    @Column(name = "created", columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    @Column(name = "created")
     private Instant created = Instant.now();
 }

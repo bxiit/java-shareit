@@ -16,5 +16,5 @@ public class ItemRequestInfo {
     private String description;
     private Long requestorId;
     private LocalDateTime created;
-    private List<ItemResponseInfo> responses;
+    private List<ItemResponseInfo> items;
 }

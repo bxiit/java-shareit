@@ -70,7 +70,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequestInfo get(long userId, long requestId) {
-        ItemRequest itemRequest = itemRequestRepository.findByRequestorIdAndId(userId, requestId)
+        ItemRequest itemRequest = itemRequestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("errors.404.requests"));
 
         Map<ItemRequest, List<Item>> itemRequestResponsesMap = itemRepository.findByRequestIds(fetchIds(itemRequest)).stream()

@@ -29,7 +29,7 @@ public interface ItemRequestMapper {
     @Mapping(target = "created", qualifiedByName = "instantToLocalDateTime")
     ItemRequestDto mapToItemRequestDto(ItemRequest itemRequest);
 
-    @Mapping(target = "responses", qualifiedByName = "toResponseInfo", source = "items")
+    @Mapping(target = "items", qualifiedByName = "toResponseInfo", source = "items")
     @Mapping(target = "requestorId", source = "itemRequest.requestor.id")
     @Mapping(target = "created", qualifiedByName = "instantToLocalDateTime")
     ItemRequestInfo mapToItemRequestInfo(ItemRequest itemRequest, List<Item> items);
