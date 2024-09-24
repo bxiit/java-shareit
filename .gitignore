@@ -5,6 +5,8 @@ target/
 !**/src/test/**/target/
 volumes/**
 .mvn/
+server/checkstyle.xml
+server/suppressions.xml
 
 
 ### STS ###

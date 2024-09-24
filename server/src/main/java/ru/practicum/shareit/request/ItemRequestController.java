@@ -40,17 +40,6 @@ public class ItemRequestController {
         return itemRequestService.getAll(userId);
     }
 
-    // user1 -> {"id":1,"email":"Eddie_Kshlerin1@yahoo.com","name":"Rolando Schiller"}
-    // user2 -> {"id":2,"email":"Keven35@hotmail.com","name":"Jasmine Schmidt IV"}
-
-    // "x-sharer-user-id":["1"]},"body":{"id":null,"description":"C21M7PhjVp1CRBrdx3Og0gyN1820jXlGzBRzQTZ8PpZebMmvfj","requestorId":null,"created":"2024-09-23T08:35:28.9272332"}
-    // "body":{"id":1,"description":"C21M7PhjVp1CRBrdx3Og0gyN1820jXlGzBRzQTZ8PpZebMmvfj","requestorId":1,"created":"2024-09-23T08:35:28.9272332"}
-
-    // "x-sharer-user-id":["2"]},"body":{"id":null,"name":"iEixADlGS5","description":"hxQd79jSNKgHtCKkbFVGgn68xTMHXBTqmpI183jCNve4gFMCZf","available":true,"requestId":1}
-    // "body":{"id":1,"name":"iEixADlGS5","description":"hxQd79jSNKgHtCKkbFVGgn68xTMHXBTqmpI183jCNve4gFMCZf","available":true,"requestId":1}
-
-    // {"x-sharer-user-id":["2"], "uri":"http://localhost:9090/requests/1"}
-    // "body":{"type":"about:blank","title":"Not Found","status":404,"detail":"Запрос не найден","instance":"/requests/1"}
     @GetMapping("/{requestId}")
     public ItemRequestInfo get(
             @RequestHeader("X-Sharer-User-Id") long userId,
